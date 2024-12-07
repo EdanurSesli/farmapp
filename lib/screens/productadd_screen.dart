@@ -287,13 +287,12 @@ class _ProductAddScreenState extends State<ProductAddScreen> {
                     onPressed: () async {
                       if (_formKey.currentState!.validate()) {
                         _formKey.currentState!.save();
-
-                        // weightOrAmount değerini quantity olarak int'e dönüştür
                         final int quantity =
                             int.tryParse(_productWeightOrAmount.text) ?? 1;
 
-                        // 'weightOrAmount' metin olarak kalacak, 'quantity' ise integer olarak kullanılacak
+                        // Yeni ürün objesini oluştur
                         final newProduct = Product(
+                          id: 0,
                           name: _productName.text,
                           description: _productDescription.text,
                           weightOrAmount:
@@ -306,21 +305,24 @@ class _ProductAddScreenState extends State<ProductAddScreen> {
                           price: double.tryParse(_productPrice.text) ?? 0.0,
                           image: _base64Image ?? '',
                           unitType: selectedUnitType ?? '',
-                          quantity:
-                              quantity, // 'int' olacak, buradaki dönüşüm burada yapılıyor
+                          quantity: quantity, // Buradaki dönüşüm
                           isActive: true,
                         );
 
                         final productService = ProductService();
-                        bool success =
+                        Product addedProduct =
                             await productService.addProduct(newProduct);
 
-                        if (success) {
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => const HomeScreen()),
-                          );
+                        // Eğer ürün başarıyla eklendiyse
+                        if (addedProduct.id != 0) {
+                          // Yönlendirme işlemi
+                          WidgetsBinding.instance.addPostFrameCallback((_) {
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => const HomeScreen()),
+                            );
+                          });
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
                                 content: Text("Ürün başarıyla yüklendi.")),

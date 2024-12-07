@@ -1,3 +1,4 @@
+import 'package:farmapp/models/product_add.dart';
 import 'package:farmapp/providers/cart_provider.dart';
 import 'package:farmapp/providers/product_provider.dart';
 import 'package:farmapp/screens/cart_screen.dart';
@@ -5,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class ProductDetailScreen extends StatefulWidget {
-  final ProductData product;
+  final Product product;
 
   const ProductDetailScreen({super.key, required this.product});
 
@@ -148,7 +149,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                               Provider.of<CartProvider>(context, listen: false);
                           cartProvider.addToCart(
                             CartItem(
-                              id: widget.product.id,
+                              id: widget.product.id.toString(),
                               name: widget.product.name,
                               price: widget.product.price,
                               quantity: _quantity,

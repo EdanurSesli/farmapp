@@ -1,38 +1,23 @@
+import 'dart:convert'; // Base64 çözümü için gerekli
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import '../providers/product_provider.dart'; // ProductProvider'ı dahil et
 
-class ProductCard extends StatefulWidget {
+class ProductCard extends StatelessWidget {
   final String id;
   final String name;
   final double price;
-  final String image;
-  final String weightOrAmount; // Ağırlık veya adet bilgisini ekledik
-  final bool isFavorite; // Favori durumu
+  final String? imageBase64; // Base64 kodu alınacak
+  final String weightOrAmount; // Miktar bilgisi
+  final String unitType; // Birim tipi (örneğin kg, adet)
 
   const ProductCard({
     required this.id,
     required this.name,
     required this.price,
-    required this.image,
-    required this.weightOrAmount, // Ağırlık/Adet
-    required this.isFavorite, // Favori durumu
+    this.imageBase64, // Görsel opsiyonel olabilir
+    required this.weightOrAmount,
+    required this.unitType,
     super.key,
   });
-
-  @override
-  _ProductCardState createState() => _ProductCardState();
-}
-
-class _ProductCardState extends State<ProductCard> {
-  late bool isFavorited;
-
-  @override
-  void initState() {
-    super.initState();
-    isFavorited =
-        widget.isFavorite; // Favori durumu başlangıçta widget'dan alınacak
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -44,56 +29,55 @@ class _ProductCardState extends State<ProductCard> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Ürün görseli
+            // Ürün Görseli
             Center(
-              child: Image.asset(
-                widget.image,
-                height: 120,
-                width: double.infinity,
-                fit: BoxFit.cover,
-              ),
+              child: imageBase64 != null && imageBase64!.isNotEmpty
+                  ? ClipRRect(
+                      borderRadius: BorderRadius.circular(8.0),
+                      child: Image.memory(
+                        base64Decode(imageBase64!), // Base64 çözümü
+                        height: 120,
+                        width: double.infinity,
+                        fit: BoxFit.cover,
+                      ),
+                    )
+                  : Icon(
+                      Icons.image_not_supported, // Görsel yoksa varsayılan ikon
+                      size: 120,
+                      color: Colors.grey,
+                    ),
             ),
             const SizedBox(height: 8),
-            // Ürün adı ve fiyat
+            // Ürün Adı ve Fiyat
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Ürün adı ve fiyat bilgisi
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        widget.name,
-                        style: const TextStyle(
-                            fontSize: 16, fontWeight: FontWeight.bold),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      Text(
-                        "${widget.price} ₺/${widget.weightOrAmount}",
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(fontSize: 14),
-                      ),
-                    ],
-                  ),
-                  // Favori butonu
-                  IconButton(
-                    icon: Icon(
-                      isFavorited ? Icons.favorite : Icons.favorite_border,
-                      color: isFavorited ? Colors.red : Colors.grey,
+                  Text(
+                    name,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
                     ),
-                    onPressed: () {
-                      setState(() {
-                        isFavorited = !isFavorited; // Favori durumunu güncelle
-                      });
-
-                      // ProductProvider'dan favori durumunu değiştir
-                      Provider.of<ProductProvider>(context, listen: false)
-                          .toggleFavorite(widget.id);
-                    },
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    "${price.toStringAsFixed(2)} ₺",
+                    style: const TextStyle(
+                      fontSize: 14,
+                      color: Colors.green,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    "$weightOrAmount $unitType", // Örneğin: "50 kg"
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: Colors.grey,
+                    ),
                   ),
                 ],
               ),

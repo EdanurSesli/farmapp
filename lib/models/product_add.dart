@@ -1,18 +1,20 @@
 class Product {
+  final int id;
   final String name;
   final String description;
-  final int weightOrAmount; // weightOrAmount int olmalı
+  final int weightOrAmount;
   final String address;
   final String fullAddress;
   final String category;
   final String quality;
-  final int quantity; // API'den gelen quantity eklenmeli
+  final int quantity;
   final double price;
   final String image;
   final String unitType;
-  bool isActive;
+  final bool isActive;
 
   Product({
+    required this.id,
     required this.name,
     required this.description,
     required this.weightOrAmount,
@@ -24,28 +26,32 @@ class Product {
     required this.price,
     required this.image,
     required this.unitType,
-    this.isActive = true,
+    required this.isActive,
   });
 
+  // JSON'dan veriyi almak için factory method
   factory Product.fromJson(Map<String, dynamic> json) {
     return Product(
-      name: json['name'] ?? '',
-      description: json['description'] ?? '',
-      weightOrAmount: json['weightOrAmount'] ?? 0,
-      address: json['address'] ?? '',
-      fullAddress: json['fullAddress'] ?? '',
-      category: json['category'] ?? '',
-      quality: json['quality'] ?? '',
-      quantity: json['quantity'] ?? 0,
-      price: (json['price'] as num).toDouble(),
-      image: json['image'] ?? '',
-      unitType: json['unitType'] ?? '',
-      isActive: json['isActive'] ?? true,
+      id: json['id'],
+      name: json['name'],
+      description: json['description'],
+      weightOrAmount: json['weightOrAmount'],
+      address: json['address'],
+      fullAddress: json['fullAddress'],
+      category: json['category'],
+      quality: json['quality'],
+      quantity: json['quantity'],
+      price: json['price'].toDouble(),
+      image: json['image'],
+      unitType: json['unitType'],
+      isActive: json['isActive'],
     );
   }
 
+  // JSON'a dönüştürme
   Map<String, dynamic> toJson() {
     return {
+      'id': id,
       'name': name,
       'description': description,
       'weightOrAmount': weightOrAmount,
@@ -53,7 +59,7 @@ class Product {
       'fullAddress': fullAddress,
       'category': category,
       'quality': quality,
-      'quantity': quantity, // Yeni alan
+      'quantity': quantity,
       'price': price,
       'image': image,
       'unitType': unitType,

@@ -3,11 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-// Sağlayıcılar
 import 'providers/cart_provider.dart';
 import 'providers/product_provider.dart';
 
-// Ekranlar
 import 'screens/splash_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/productadd_screen.dart';

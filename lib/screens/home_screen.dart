@@ -46,19 +46,16 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       appBar: _selectedIndex == 0
           ? AppBar(
-              title: const Text(
-                'Farm2Market',
-                style: TextStyle(
-                  fontFamily: 'Farm2MarketFont',
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-              ),
-              centerTitle: true,
+              automaticallyImplyLeading: false,
               backgroundColor: const Color.fromRGBO(133, 8, 62, 1),
               elevation: 0,
-              automaticallyImplyLeading: false,
+              centerTitle: true,
+              title: Image.asset(
+                'assets/images/applogo.png',
+                height: 50,
+                width: 800,
+                fit: BoxFit.contain,
+              ),
             )
           : null,
       body: SafeArea(

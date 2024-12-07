@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:farmapp/models/product_add.dart';
 import 'package:farmapp/services/ProductService.dart';
@@ -37,12 +36,54 @@ class _ProductListPageState extends State<ProductListPage> {
     }
   }
 
+  Future<void> _deleteProduct(String productId) async {
+    try {
+      final productService = ProductService();
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? token = prefs.getString('token');
+
+      print("Silinecek ürün ID: $productId");
+
+      if (token != null) {
+        bool success =
+            await productService.softDeleteProduct(token, productId.toString());
+        if (success) {
+          setState(() {
+            _productsFuture = _fetchProducts(); // Listeyi güncelle
+          });
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Ürün başarıyla silindi.')),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Ürün silinirken hata oluştu.')),
+          );
+        }
+      } else {
+        throw Exception("Token bulunamadı.");
+      }
+    } catch (error) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Hata: $error')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Ürünlerim"),
-        backgroundColor: const Color.fromARGB(255, 114, 154, 104),
+        title: const Text(
+          'Ürünlerim',
+          style: TextStyle(
+            fontFamily: 'Font',
+            fontSize: 24,
+            color: Colors.white,
+          ),
+        ),
+        backgroundColor: const Color.fromRGBO(133, 8, 62, 1),
+        elevation: 0,
+        automaticallyImplyLeading: true,
       ),
       body: FutureBuilder<List<Product>>(
         future: _productsFuture,
@@ -95,9 +136,49 @@ class _ProductListPageState extends State<ProductListPage> {
                         ),
                       ],
                     ),
-                    trailing: IconButton(
-                      icon: const Icon(Icons.edit, color: Colors.blue),
-                      onPressed: () {},
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        // Silme butonu
+                        IconButton(
+                          icon: const Icon(Icons.delete, color: Colors.red),
+                          onPressed: () {
+                            // Silme işlemi
+                            showDialog(
+                              context: context,
+                              builder: (context) {
+                                return AlertDialog(
+                                  title: const Text('Silme Onayı'),
+                                  content: const Text(
+                                      'Bu ürünü silmek istediğinizden emin misiniz?'),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () {
+                                        Navigator.of(context).pop();
+                                      },
+                                      child: const Text('Hayır'),
+                                    ),
+                                    TextButton(
+                                      onPressed: () {
+                                        Navigator.of(context).pop();
+                                        _deleteProduct(product.id.toString());
+                                      },
+                                      child: const Text('Evet'),
+                                    ),
+                                  ],
+                                );
+                              },
+                            );
+                          },
+                        ),
+                        // Güncelleme butonu (kalem ikonu)
+                        IconButton(
+                          icon: const Icon(Icons.edit, color: Colors.blue),
+                          onPressed: () {
+                            // Güncelleme işlemini burada tetikleyebilirsiniz
+                          },
+                        ),
+                      ],
                     ),
                     onTap: () {},
                   ),

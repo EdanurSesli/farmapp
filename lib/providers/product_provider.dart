@@ -1,102 +1,57 @@
+import 'package:farmapp/models/product_add.dart';
+import 'package:farmapp/services/ProductService.dart';
 import 'package:flutter/material.dart';
 
-class ProductData {
-  final String id;
-  final String name;
-  final String description;
-  final String weightOrAmount;
-  final String address;
-  final String fullAddress;
-  final String category;
-  final String quality;
-  final double price;
-  bool isFavorite; // Favori durumu, her ürün için tutuluyor
-
-  ProductData({
-    required this.id,
-    required this.name,
-    required this.description,
-    required this.weightOrAmount,
-    required this.address,
-    required this.fullAddress,
-    required this.category,
-    required this.quality,
-    required this.price,
-    this.isFavorite = false,
-  });
-}
-
 class ProductProvider with ChangeNotifier {
-  final List<ProductData> _products = [];
-  final List<ProductData> _favoriteProducts = [];
+  final List<Product> _products = [];
+  bool _isLoading = false; // isLoading durumu ekledik
+
+  final ProductService _productService =
+      ProductService(); // ProductService'ı ekledik
+
+  ProductService get productService => _productService;
 
   // Tüm ürünleri almak için getter
-  List<ProductData> get products => [..._products];
+  List<Product> get products => [..._products];
 
-  // Favori ürünleri almak için getter
-  List<ProductData> get favoriteProducts => [..._favoriteProducts];
+  // isLoading getter'ı
+  bool get isLoading => _isLoading;
 
-  // Favori durumu değiştirme (favori ekleme/çıkarma)
-  void toggleFavorite(String productId) {
-    final product = _products.firstWhere((prod) => prod.id == productId);
+  // Ürünleri API'den al
+  Future<void> loadProducts(String token) async {
+    _isLoading = true; // Yükleniyor durumu başlat
+    notifyListeners(); // Dinleyicilere bildirim gönder
 
-    // Favori durumu değiştirme
-    product.isFavorite = !product.isFavorite;
-
-    // Favori olduysa, favoriler listesine ekle
-    if (product.isFavorite) {
-      if (!_favoriteProducts.any((favProduct) => favProduct.id == product.id)) {
-        _favoriteProducts.add(product);
-      }
-    } else {
-      _favoriteProducts
-          .removeWhere((favProduct) => favProduct.id == product.id);
+    try {
+      List<Product> products = await _productService.fetchProducts(token);
+      _products.clear();
+      _products.addAll(products);
+      _isLoading = false; // Yükleme tamamlandığında isLoading false
+      notifyListeners(); // Durum değiştiği için dinleyicilere bildirim gönder
+    } catch (e) {
+      print("Error loading products: $e");
+      _isLoading = false; // Hata durumunda da isLoading false
+      notifyListeners();
     }
-
-    notifyListeners(); // Durumu güncelleyen dinleyicilere bildirim gönder
   }
 
   // Ürün ekleme
-  void addProduct(ProductData product) {
+  void addProduct(Product product) {
     _products.add(product);
-
-    // Eğer ürün favoriyse, favori listesine ekle
-    if (product.isFavorite &&
-        !_favoriteProducts.any((favProduct) => favProduct.id == product.id)) {
-      _favoriteProducts.add(product);
-    }
-
     notifyListeners(); // Durumu güncelleyen dinleyicilere bildirim gönder
   }
 
   // Ürün silme
   void removeProduct(String id) {
-    final product = _products.firstWhere((product) => product.id == id);
-    if (product.isFavorite) {
-      _favoriteProducts.removeWhere((favProduct) =>
-          favProduct.id == product.id); // Favori ise favorilerden çıkar
-    }
     _products.removeWhere((product) => product.id == id);
     notifyListeners(); // Durumu güncelleyen dinleyicilere bildirim gönder
   }
 
   // Ürün güncelleme
-  void updateProduct(String id, ProductData updatedProduct) {
+  void updateProduct(String id, Product updatedProduct) {
     final index = _products.indexWhere((product) => product.id == id);
     if (index >= 0) {
       _products[index] = updatedProduct;
-
-      // Favori durumu değişmişse, favoriler listesini de güncelle
-      if (updatedProduct.isFavorite) {
-        if (!_favoriteProducts
-            .any((favProduct) => favProduct.id == updatedProduct.id)) {
-          _favoriteProducts.add(updatedProduct);
-        }
-      } else {
-        _favoriteProducts
-            .removeWhere((favProduct) => favProduct.id == updatedProduct.id);
-      }
-
       notifyListeners(); // Durumu güncelleyen dinleyicilere bildirim gönder
     } else {
       throw Exception('Ürün bulunamadı.');
