@@ -287,42 +287,39 @@ class _ProductAddScreenState extends State<ProductAddScreen> {
                     onPressed: () async {
                       if (_formKey.currentState!.validate()) {
                         _formKey.currentState!.save();
+
+                        // weightOrAmount değerini quantity olarak int'e dönüştür
                         final int quantity =
                             int.tryParse(_productWeightOrAmount.text) ?? 1;
 
-                        // Yeni ürün objesini oluştur
+                        // 'weightOrAmount' metin olarak kalacak, 'quantity' ise integer olarak kullanılacak
                         final newProduct = Product(
-                          id: 0,
-                          name: _productName.text,
-                          description: _productDescription.text,
-                          weightOrAmount:
-                              int.tryParse(_productWeightOrAmount.text) ?? 0,
-                          address:
-                              _productAddress.text + _productFullAddress.text,
-                          fullAddress: _productFullAddress.text,
-                          category: selectedCategory ?? '',
-                          quality: selectedQuality ?? '',
-                          price: double.tryParse(_productPrice.text) ?? 0.0,
-                          image: _base64Image ?? '',
-                          unitType: selectedUnitType ?? '',
-                          quantity: quantity, // Buradaki dönüşüm
-                          isActive: true,
-                        );
+  id: 0,
+  name: _productName.text,
+  description: _productDescription.text,
+  weightOrAmount: int.tryParse(_productWeightOrAmount.text) ?? 0,
+  address: _productAddress.text + _productFullAddress.text,
+  fullAddress: _productFullAddress.text,
+  category: selectedCategory ?? '',
+  quality: selectedQuality ?? '',
+  price: double.tryParse(_productPrice.text) ?? 0.0,
+  image: _base64Image ?? '',
+  unitType: selectedUnitType ?? '',
+  quantity: quantity,
+  isActive: true,
+);
+
 
                         final productService = ProductService();
-                        Product addedProduct =
+                        bool success =
                             await productService.addProduct(newProduct);
 
-                        // Eğer ürün başarıyla eklendiyse
-                        if (addedProduct.id != 0) {
-                          // Yönlendirme işlemi
-                          WidgetsBinding.instance.addPostFrameCallback((_) {
-                            Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => const HomeScreen()),
-                            );
-                          });
+                        if (success) {
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => const HomeScreen()),
+                          );
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
                                 content: Text("Ürün başarıyla yüklendi.")),

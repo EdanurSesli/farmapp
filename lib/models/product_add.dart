@@ -32,7 +32,7 @@ class Product {
   // JSON'dan veriyi almak için factory method
   factory Product.fromJson(Map<String, dynamic> json) {
     return Product(
-      id: json['id'],
+      id: json['id'] ?? json['productID'],
       name: json['name'],
       description: json['description'],
       weightOrAmount: json['weightOrAmount'],

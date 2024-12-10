@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:farmapp/screens/update_product_page.dart';
 import 'package:flutter/material.dart';
 import 'package:farmapp/models/product_add.dart';
 import 'package:farmapp/services/ProductService.dart';
@@ -20,6 +21,7 @@ class _ProductListPageState extends State<ProductListPage> {
     _productsFuture = _fetchProducts();
   }
 
+  // Ürünleri fetch etmek için metod
   Future<List<Product>> _fetchProducts() async {
     try {
       final productService = ProductService();
@@ -36,17 +38,26 @@ class _ProductListPageState extends State<ProductListPage> {
     }
   }
 
-  Future<void> _deleteProduct(String productId) async {
+  // Ürünü silme işlemi
+  Future<void> _deleteProduct(int id) async {
     try {
       final productService = ProductService();
       SharedPreferences prefs = await SharedPreferences.getInstance();
       String? token = prefs.getString('token');
 
-      print("Silinecek ürün ID: $productId");
-
       if (token != null) {
-        bool success =
-            await productService.softDeleteProduct(token, productId.toString());
+        // Silme işlemine başlamadan önce loading gösterebiliriz
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (BuildContext context) {
+            return const Center(child: CircularProgressIndicator());
+          },
+        );
+
+        bool success = await productService.softDeleteProduct(token, id);
+        Navigator.of(context).pop(); // Loading göstergesini kapat
+
         if (success) {
           setState(() {
             _productsFuture = _fetchProducts(); // Listeyi güncelle
@@ -161,7 +172,8 @@ class _ProductListPageState extends State<ProductListPage> {
                                     TextButton(
                                       onPressed: () {
                                         Navigator.of(context).pop();
-                                        _deleteProduct(product.id.toString());
+                                        _deleteProduct(product
+                                            .id); // Burada int ID gönderiliyor
                                       },
                                       child: const Text('Evet'),
                                     ),
@@ -174,8 +186,32 @@ class _ProductListPageState extends State<ProductListPage> {
                         // Güncelleme butonu (kalem ikonu)
                         IconButton(
                           icon: const Icon(Icons.edit, color: Colors.blue),
-                          onPressed: () {
-                            // Güncelleme işlemini burada tetikleyebilirsiniz
+                          onPressed: () async {
+                            // SharedPreferences'ten token'ı alıyoruz
+                            SharedPreferences prefs =
+                                await SharedPreferences.getInstance();
+                            String? token = prefs.getString(
+                                'token'); // Token key'inizi doğru olarak kullanın
+
+                            if (token != null) {
+                              // Güncelleme sayfasına yönlendirme
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => UpdateProductPage(
+                                    product: product,
+                                    token: token, // Token'ı burada geçiriyoruz
+                                  ),
+                                ),
+                              );
+                            } else {
+                              // Token bulunamadığında hata mesajı gösterebilirsiniz
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                    content: Text(
+                                        "Token bulunamadı. Lütfen giriş yapın.")),
+                              );
+                            }
                           },
                         ),
                       ],
