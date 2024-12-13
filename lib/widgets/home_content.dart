@@ -15,29 +15,25 @@ class HomeContent extends StatefulWidget {
 
 class _HomeContentState extends State<HomeContent> {
   bool _isLoading = false;
-  List<Product> _allProducts = []; // Tüm ürünler burada tutulacak
+  List<Product> _allProducts = [];
 
   @override
   void initState() {
     super.initState();
-    loadProducts(); // Token gerekmiyor, tüm ürünler getirilecek
+    loadProducts();
   }
 
-  // Ürünleri al ve listele
   Future<void> loadProducts() async {
     setState(() {
       _isLoading = true;
     });
 
     try {
-      // Token gerekmediği için direkt olarak getAllProducts çağırıyoruz
-      List<Product> products = await context
-          .read<ProductProvider>()
-          .productService
-          .getAllProducts(); // Tüm ürünleri al
+      List<Product> products =
+          await context.read<ProductProvider>().productService.getAllProducts();
 
       setState(() {
-        _allProducts = products; // Ürünleri listeye ekle
+        _allProducts = products;
         _isLoading = false;
       });
     } catch (e) {
@@ -52,7 +48,6 @@ class _HomeContentState extends State<HomeContent> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        // Arama Çubuğu
         Padding(
           padding: const EdgeInsets.all(16.0),
           child: TextField(
@@ -83,8 +78,6 @@ class _HomeContentState extends State<HomeContent> {
             ),
           ),
         ),
-
-        // Ürünler Listesi
         Expanded(
           child: _isLoading
               ? const Center(child: CircularProgressIndicator())
@@ -125,13 +118,18 @@ class _HomeContentState extends State<HomeContent> {
                                     borderRadius: const BorderRadius.vertical(
                                       top: Radius.circular(10.0),
                                     ),
-                                    child: product.image.isNotEmpty
-                                        ? Image.memory(
-                                            base64Decode(
-                                                product.image),
-                                            fit: BoxFit.cover,
-                                            width: double.infinity,
-                                            height: double.infinity,
+                                    child: product.images.isNotEmpty
+                                        ? PageView.builder(
+                                            itemCount: product.images.length,
+                                            itemBuilder: (context, imageIndex) {
+                                              return Image.memory(
+                                                base64Decode(
+                                                    product.images[imageIndex]),
+                                                fit: BoxFit.cover,
+                                                width: double.infinity,
+                                                height: double.infinity,
+                                              );
+                                            },
                                           )
                                         : Container(
                                             color: Colors.grey[200],
@@ -155,7 +153,6 @@ class _HomeContentState extends State<HomeContent> {
                                       mainAxisAlignment:
                                           MainAxisAlignment.spaceAround,
                                       children: [
-                                        // Ürün Adı
                                         Text(
                                           product.name,
                                           style: const TextStyle(
@@ -165,7 +162,6 @@ class _HomeContentState extends State<HomeContent> {
                                           maxLines: 1,
                                           overflow: TextOverflow.ellipsis,
                                         ),
-                                        // Ürün Fiyatı
                                         Text(
                                           '${product.price.toStringAsFixed(2)} ₺',
                                           style: const TextStyle(
@@ -173,7 +169,6 @@ class _HomeContentState extends State<HomeContent> {
                                             fontSize: 14.0,
                                           ),
                                         ),
-                                        // Ürün Birimi (Adet veya Kg)
                                         Text(
                                           '${product.weightOrAmount} ${product.unitType}',
                                           style: const TextStyle(

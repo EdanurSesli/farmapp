@@ -22,37 +22,48 @@ class _ProductAddScreenState extends State<ProductAddScreen> {
   final TextEditingController _productWeightOrAmount = TextEditingController();
   final TextEditingController _productAddress = TextEditingController();
   final TextEditingController _productFullAddress = TextEditingController();
-  final TextEditingController _productCategory = TextEditingController();
-  final TextEditingController _productQuality = TextEditingController();
   final TextEditingController _productPrice = TextEditingController();
-  final TextEditingController _productImage = TextEditingController();
-  final TextEditingController _selectedUnitType = TextEditingController();
 
   final ImagePicker _picker = ImagePicker();
   File? _selectedImage;
-  String? _base64Image;
+  List<String>? _base64Image = [];
 
   final List<String> unitTypes = ['Kilogram', 'Adet', 'Litre', 'Diğer'];
   final List<String> qualityOptions = ['A (En iyi)', 'B', 'C'];
-  final List<String> categories = [
-    'Meyve',
-    'Sebze',
-    'Hayvansal Ürünler',
-    'Tahıllar ve Baklagiller',
-    'Ev Yapımı Ürünler'
-  ];
+  final ProductService productService = ProductService();
+  List<Map<String, dynamic>> categories = [];
+  int? selectedCategoryId;
 
   String? selectedUnitType = 'Kilogram';
   String? selectedQuality = 'A (En iyi)';
-  String? selectedCategory = 'Meyve';
 
-  Future<void> _pickImage() async {
+  Future<void> pickImage() async {
     final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
       setState(() {
         _selectedImage = File(pickedFile.path);
-        _base64Image = base64Encode(_selectedImage!.readAsBytesSync());
+        final bytes = _selectedImage!.readAsBytesSync();
+        final base64Image = base64Encode(bytes);
+        _base64Image?.add(base64Image);
       });
+    } else {
+      print('Hiçbir resim seçilmedi.');
+    }
+  }
+
+  Future<void> _loadCategories() async {
+    try {
+      final categoryData = await productService.getCategories();
+      setState(() {
+        categories = categoryData.map<Map<String, dynamic>>((category) {
+          return {
+            'id': category.id as int,
+            'name': category.name as String,
+          };
+        }).toList();
+      });
+    } catch (e) {
+      print("Kategoriler yüklenirken hata oluştu: $e");
     }
   }
 
@@ -76,6 +87,12 @@ class _ProductAddScreenState extends State<ProductAddScreen> {
       ),
       contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
     );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _loadCategories();
   }
 
   @override
@@ -119,7 +136,7 @@ class _ProductAddScreenState extends State<ProductAddScreen> {
                   maxLines: 3,
                   controller: _productDescription,
                   decoration:
-                      _customInputDecoration("Ürünün hakkında kısa açıklma"),
+                      _customInputDecoration("Ürün hakkında kısa açıklama"),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Ürün açıklaması gerekli';
@@ -133,7 +150,7 @@ class _ProductAddScreenState extends State<ProductAddScreen> {
                 const SizedBox(height: 8),
                 TextFormField(
                   controller: _productWeightOrAmount,
-                  decoration: _customInputDecoration("Ürünün adını girin"),
+                  decoration: _customInputDecoration("Ürünün miktarını girin"),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Ağırlık veya miktar';
@@ -167,27 +184,31 @@ class _ProductAddScreenState extends State<ProductAddScreen> {
                 const Text("Kategori",
                     style: TextStyle(fontWeight: FontWeight.bold)),
                 const SizedBox(height: 8),
-                DropdownButtonFormField<String>(
-                  value: selectedCategory,
-                  items: categories.map((category) {
-                    return DropdownMenuItem<String>(
-                      value: category,
-                      child: Text(category),
-                    );
-                  }).toList(),
-                  onChanged: (value) {
-                    setState(() {
-                      selectedCategory = value;
-                    });
-                  },
-                  decoration: _customInputDecoration("Kategori seçin"),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Kategori seçin';
-                    }
-                    return null;
-                  },
-                ),
+                categories.isNotEmpty
+                    ? DropdownButtonFormField<int>(
+                        value: selectedCategoryId,
+                        items: categories.map((category) {
+                          return DropdownMenuItem<int>(
+                            value: category['id'],
+                            child: Text(category['name']),
+                          );
+                        }).toList(),
+                        onChanged: (value) {
+                          setState(() {
+                            selectedCategoryId = value;
+                          });
+                        },
+                        decoration: _customInputDecoration("Kategori seçin"),
+                        validator: (value) {
+                          if (value == null) {
+                            return 'Kategori seçin';
+                          }
+                          return null;
+                        },
+                      )
+                    : const Center(
+                        child: CircularProgressIndicator(),
+                      ),
                 const SizedBox(height: 16),
                 const Text("Kalite",
                     style: TextStyle(fontWeight: FontWeight.bold)),
@@ -260,7 +281,7 @@ class _ProductAddScreenState extends State<ProductAddScreen> {
                 Row(
                   children: [
                     ElevatedButton.icon(
-                      onPressed: _pickImage,
+                      onPressed: pickImage,
                       icon: const Icon(Icons.add_a_photo, color: Colors.white),
                       label: const Text("Fotoğraf Seç"),
                       style: ElevatedButton.styleFrom(
@@ -271,12 +292,21 @@ class _ProductAddScreenState extends State<ProductAddScreen> {
                       ),
                     ),
                     const SizedBox(width: 16),
-                    _selectedImage != null
-                        ? Image.file(
-                            _selectedImage!,
-                            width: 100,
+                    _base64Image != null && _base64Image!.isNotEmpty
+                        ? SizedBox(
                             height: 100,
-                            fit: BoxFit.cover,
+                            width: 100,
+                            child: PageView.builder(
+                              itemCount: _base64Image!.length,
+                              itemBuilder: (context, index) {
+                                return Image.memory(
+                                  base64Decode(_base64Image![index]),
+                                  fit: BoxFit.cover,
+                                  height: 100,
+                                  width: 100,
+                                );
+                              },
+                            ),
                           )
                         : const Text("Fotoğraf seçilmedi"),
                   ],
@@ -288,27 +318,26 @@ class _ProductAddScreenState extends State<ProductAddScreen> {
                       if (_formKey.currentState!.validate()) {
                         _formKey.currentState!.save();
 
-                        // weightOrAmount değerini quantity olarak int'e dönüştür
                         final int quantity =
                             int.tryParse(_productWeightOrAmount.text) ?? 1;
 
-                        // 'weightOrAmount' metin olarak kalacak, 'quantity' ise integer olarak kullanılacak
                         final newProduct = Product(
-  id: 0,
-  name: _productName.text,
-  description: _productDescription.text,
-  weightOrAmount: int.tryParse(_productWeightOrAmount.text) ?? 0,
-  address: _productAddress.text + _productFullAddress.text,
-  fullAddress: _productFullAddress.text,
-  category: selectedCategory ?? '',
-  quality: selectedQuality ?? '',
-  price: double.tryParse(_productPrice.text) ?? 0.0,
-  image: _base64Image ?? '',
-  unitType: selectedUnitType ?? '',
-  quantity: quantity,
-  isActive: true,
-);
-
+                          id: 0,
+                          name: _productName.text,
+                          description: _productDescription.text,
+                          weightOrAmount:
+                              int.tryParse(_productWeightOrAmount.text) ?? 0,
+                          address:
+                              _productAddress.text + _productFullAddress.text,
+                          fullAddress: _productFullAddress.text,
+                          categoryId: selectedCategoryId ?? 0,
+                          quality: selectedQuality ?? '',
+                          price: double.tryParse(_productPrice.text) ?? 0.0,
+                          images: _base64Image ?? [],
+                          unitType: selectedUnitType ?? '',
+                          quantity: quantity,
+                          isActive: true,
+                        );
 
                         final productService = ProductService();
                         bool success =

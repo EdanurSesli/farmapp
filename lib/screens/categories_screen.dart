@@ -6,11 +6,10 @@ class CategoriesScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Durum çubuğu rengini AppBar ile uyumlu hale getir
     SystemChrome.setSystemUIOverlayStyle(
       const SystemUiOverlayStyle(
-        statusBarColor: Color.fromRGBO(133, 8, 62, 1), // AppBar rengiyle aynı
-        statusBarIconBrightness: Brightness.light, // İkonları beyaz yap
+        statusBarColor: Color.fromRGBO(133, 8, 62, 1),
+        statusBarIconBrightness: Brightness.light,
       ),
     );
 
@@ -26,9 +25,9 @@ class CategoriesScreen extends StatelessWidget {
           ),
         ),
         centerTitle: true,
-        backgroundColor: const Color.fromRGBO(133, 8, 62, 1), // Arka plan rengi
-        elevation: 0, // Gölgeyi kaldır
-        automaticallyImplyLeading: false, // Geri tuşu eklenmeyecek
+        backgroundColor: const Color.fromRGBO(133, 8, 62, 1),
+        elevation: 0,
+        automaticallyImplyLeading: false,
       ),
       body: SafeArea(
         child: GridView.builder(

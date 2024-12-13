@@ -5,12 +5,12 @@ class Product {
   final int weightOrAmount;
   final String address;
   final String fullAddress;
-  final String category;
+  final int categoryId; // Kategori için int türünde ID
   final String quality;
-  final int quantity;
   final double price;
-  final String image;
+  final List<String> images; // Görseller için liste
   final String unitType;
+  final int quantity;
   final bool isActive;
 
   Product({
@@ -20,35 +20,34 @@ class Product {
     required this.weightOrAmount,
     required this.address,
     required this.fullAddress,
-    required this.category,
+    required this.categoryId, // Kategori ID'si
     required this.quality,
-    required this.quantity,
     required this.price,
-    required this.image,
+    required this.images, // Görseller
     required this.unitType,
+    required this.quantity,
     required this.isActive,
   });
 
-  // JSON'dan veriyi almak için factory method
   factory Product.fromJson(Map<String, dynamic> json) {
     return Product(
-      id: json['id'] ?? json['productID'],
+      id: json['id'],
       name: json['name'],
       description: json['description'],
       weightOrAmount: json['weightOrAmount'],
       address: json['address'],
       fullAddress: json['fullAddress'],
-      category: json['category'],
+      categoryId: json['categoryId'], // categoryId'yi alıyoruz
       quality: json['quality'],
-      quantity: json['quantity'],
-      price: json['price'].toDouble(),
-      image: json['image'],
+      price: (json['price'] as num).toDouble(), // Double olarak parse ediyoruz
+      images:
+          List<String>.from(json['image'] ?? []), // Liste olarak ele alıyoruz
       unitType: json['unitType'],
+      quantity: json['quantity'],
       isActive: json['isActive'],
     );
   }
 
-  // JSON'a dönüştürme
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -57,12 +56,12 @@ class Product {
       'weightOrAmount': weightOrAmount,
       'address': address,
       'fullAddress': fullAddress,
-      'category': category,
+      'categoryId': categoryId, // categoryId JSON'a ekleniyor
       'quality': quality,
-      'quantity': quantity,
       'price': price,
-      'image': image,
+      'image': images, // Görseller JSON'a ekleniyor
       'unitType': unitType,
+      'quantity': quantity,
       'isActive': isActive,
     };
   }

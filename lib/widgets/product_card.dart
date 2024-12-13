@@ -1,19 +1,19 @@
-import 'dart:convert'; // Base64 çözümü için gerekli
+import 'dart:convert';
 import 'package:flutter/material.dart';
 
 class ProductCard extends StatelessWidget {
   final String id;
   final String name;
   final double price;
-  final String? imageBase64; // Base64 kodu alınacak
-  final String weightOrAmount; // Miktar bilgisi
-  final String unitType; // Birim tipi (örneğin kg, adet)
+  final String? imageBase64;
+  final String weightOrAmount;
+  final String unitType;
 
   const ProductCard({
     required this.id,
     required this.name,
     required this.price,
-    this.imageBase64, // Görsel opsiyonel olabilir
+    this.imageBase64,
     required this.weightOrAmount,
     required this.unitType,
     super.key,
@@ -29,26 +29,24 @@ class ProductCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Ürün Görseli
             Center(
               child: imageBase64 != null && imageBase64!.isNotEmpty
                   ? ClipRRect(
                       borderRadius: BorderRadius.circular(8.0),
                       child: Image.memory(
-                        base64Decode(imageBase64!), // Base64 çözümü
+                        base64Decode(imageBase64!),
                         height: 120,
                         width: double.infinity,
                         fit: BoxFit.cover,
                       ),
                     )
                   : Icon(
-                      Icons.image_not_supported, // Görsel yoksa varsayılan ikon
+                      Icons.image_not_supported,
                       size: 120,
                       color: Colors.grey,
                     ),
             ),
             const SizedBox(height: 8),
-            // Ürün Adı ve Fiyat
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8.0),
               child: Column(
@@ -73,7 +71,7 @@ class ProductCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    "$weightOrAmount $unitType", // Örneğin: "50 kg"
+                    "$weightOrAmount $unitType",
                     style: const TextStyle(
                       fontSize: 12,
                       color: Colors.grey,

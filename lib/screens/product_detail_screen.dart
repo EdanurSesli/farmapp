@@ -91,7 +91,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                   ),
                   const SizedBox(height: 8.0),
                   Text(
-                    "Kalite: ${widget.product.quality} | Kategori: ${widget.product.category}",
+                    "Kalite: ${widget.product.quality} | Kategori: ${widget.product.categoryId}",
                     style: const TextStyle(
                       fontSize: 16.0,
                     ),

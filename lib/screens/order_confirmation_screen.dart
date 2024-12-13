@@ -29,7 +29,7 @@ class _OrderConfirmationScreenState extends State<OrderConfirmationScreen> {
       appBar: AppBar(
         title: const Text("Sipariş Onayı",
             style: TextStyle(
-              color: Colors.white, // Yazı rengi beyaz
+              color: Colors.white,
             )),
         backgroundColor: const Color.fromRGBO(133, 8, 62, 1),
         automaticallyImplyLeading: false,

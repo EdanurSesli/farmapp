@@ -44,7 +44,7 @@ class _CategoryListState extends State<CategoryList> {
     if (_scrollController.position.pixels <
         _scrollController.position.maxScrollExtent) {
       _scrollController.animateTo(
-        _scrollController.position.pixels + 150, // Sağa kaydırma miktarı
+        _scrollController.position.pixels + 150,
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeInOut,
       );
@@ -55,7 +55,7 @@ class _CategoryListState extends State<CategoryList> {
     if (_scrollController.position.pixels >
         _scrollController.position.minScrollExtent) {
       _scrollController.animateTo(
-        _scrollController.position.pixels - 150, // Sola kaydırma miktarı
+        _scrollController.position.pixels - 150,
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeInOut,
       );
@@ -74,8 +74,7 @@ class _CategoryListState extends State<CategoryList> {
           child: SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             controller: _scrollController,
-            physics:
-                const BouncingScrollPhysics(), // Kaydırma davranışı için gerekli
+            physics: const BouncingScrollPhysics(),
             child: Row(
               children: const [
                 CategoryCard(title: "Sebze"),

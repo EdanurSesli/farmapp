@@ -223,9 +223,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   const SizedBox(height: 20),
                   ElevatedButton.icon(
-                    onPressed: () {
-                      // Şu an için bir işlem yapmıyor
-                    },
+                    onPressed: () {},
                     icon: const Icon(Icons.g_mobiledata),
                     label: const Text("Google ile Giriş Yap"),
                     style: ElevatedButton.styleFrom(

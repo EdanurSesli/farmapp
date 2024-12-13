@@ -55,7 +55,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Kullanıcı adı ve email'den gelen parametreler kullanılacak
     String userName = widget.userName;
     String email = widget.email;
 

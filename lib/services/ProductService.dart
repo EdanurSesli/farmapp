@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:farmapp/models/category.dart';
 import 'package:farmapp/models/product_add.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -27,7 +28,7 @@ class ProductService {
       );
 
       if (response.statusCode == 200) {
-        return true; // Ürün başarıyla eklendi
+        return true;
       } else {
         throw Exception('Ürün eklenirken hata oluştu: ${response.body}');
       }
@@ -66,7 +67,6 @@ class ProductService {
       final response = await http.get(url, headers: headers);
 
       if (response.statusCode == 200) {
-        // API yanıtını yazdır
         print('API Yanıtı: ${response.body}');
 
         final List<dynamic> data = json.decode(response.body);
@@ -88,13 +88,11 @@ class ProductService {
     };
 
     try {
-      // HTTP DELETE isteği gönder
       final response = await http.delete(url, headers: headers);
 
       if (response.statusCode == 200) {
-        return true; // Silme işlemi başarılı
+        return true;
       } else {
-        // Yanıtı yazdır
         print('Response body: ${response.body}');
         throw Exception('Silme işlemi başarısız: ${response.body}');
       }
@@ -104,6 +102,7 @@ class ProductService {
     }
   }
 
+  // Ürün güncelleme
   Future<bool> updateProduct(Product product, String token) async {
     final url =
         Uri.parse('https://farmtwomarket.com/api/Product/UpdateProduct');
@@ -129,6 +128,35 @@ class ProductService {
     } catch (error) {
       print('Hata oluştu: $error');
       throw Exception('Ürün güncellenirken hata oluştu: $error');
+    }
+  }
+
+  // Kategorileri almak için
+  Future<List<Category>> getCategories() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('token');
+
+    if (token == null) {
+      throw Exception('Geçerli bir token bulunamadı.');
+    }
+
+    try {
+      final response = await http.get(
+        Uri.parse('https://farmtwomarket.com/api/Product/GetCategory'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        List<dynamic> data = json.decode(response.body);
+        return data.map((category) => Category.fromJson(category)).toList();
+      } else {
+        throw Exception('Kategoriler alınamadı: ${response.statusCode}');
+      }
+    } catch (error) {
+      throw Exception('Kategoriler alınırken hata oluştu: $error');
     }
   }
 }

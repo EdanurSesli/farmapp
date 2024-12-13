@@ -12,8 +12,8 @@ class CartScreen extends StatelessWidget {
     final cartProvider = Provider.of<CartProvider>(context);
     SystemChrome.setSystemUIOverlayStyle(
       const SystemUiOverlayStyle(
-        statusBarColor: Color.fromRGBO(133, 8, 62, 1), // AppBar rengiyle aynı
-        statusBarIconBrightness: Brightness.light, // İkonları beyaz yap
+        statusBarColor: Color.fromRGBO(133, 8, 62, 1),
+        statusBarIconBrightness: Brightness.light,
       ),
     );
 

@@ -7,7 +7,7 @@ import 'package:farmapp/services/ProductService.dart';
 
 class UpdateProductPage extends StatefulWidget {
   final Product product;
-  final String token; // Kullanıcı token'i buraya eklendi
+  final String token;
 
   const UpdateProductPage(
       {super.key, required this.product, required this.token});
@@ -28,7 +28,7 @@ class _UpdateProductPageState extends State<UpdateProductPage> {
 
   final ImagePicker _picker = ImagePicker();
   File? _selectedImage;
-  String? _base64Image;
+  String? _base64Image; // Türü tek bir string olarak değiştirildi
 
   final List<String> unitTypes = ['Kilogram', 'Adet', 'Litre', 'Diğer'];
   final List<String> qualityOptions = ['A (En iyi)', 'B', 'C'];
@@ -60,8 +60,9 @@ class _UpdateProductPageState extends State<UpdateProductPage> {
 
     selectedUnitType = widget.product.unitType;
     selectedQuality = widget.product.quality;
-    selectedCategory = widget.product.category;
-    _base64Image = widget.product.image;
+    selectedCategory = widget.product.categoryId.toString();
+    _base64Image =
+        widget.product.images.isNotEmpty ? widget.product.images[0] : null;
   }
 
   Future<void> _pickImage() async {
@@ -71,6 +72,10 @@ class _UpdateProductPageState extends State<UpdateProductPage> {
         _selectedImage = File(pickedFile.path);
         _base64Image = base64Encode(_selectedImage!.readAsBytesSync());
       });
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Hiçbir resim seçilmedi.")),
+      );
     }
   }
 
@@ -100,10 +105,12 @@ class _UpdateProductPageState extends State<UpdateProductPage> {
         weightOrAmount: int.tryParse(_productWeightOrAmount.text) ?? 0,
         address: _productAddress.text,
         fullAddress: _productFullAddress.text,
-        category: selectedCategory ?? '',
+        categoryId: selectedCategory != null && selectedCategory!.isNotEmpty
+            ? int.parse(selectedCategory!)
+            : 0,
         quality: selectedQuality ?? '',
         price: double.tryParse(_productPrice.text) ?? 0.0,
-        image: _base64Image ?? '',
+        images: _base64Image != null ? [_base64Image!] : widget.product.images,
         unitType: selectedUnitType ?? '',
         quantity: widget.product.quantity,
         isActive: true,
@@ -173,6 +180,36 @@ class _UpdateProductPageState extends State<UpdateProductPage> {
                     }
                     return null;
                   },
+                ),
+                const SizedBox(height: 16),
+                const Text("Ürün Resmi",
+                    style: TextStyle(fontWeight: FontWeight.bold)),
+                const SizedBox(height: 8),
+                Center(
+                  child: Column(
+                    children: [
+                      _selectedImage != null
+                          ? Image.file(
+                              _selectedImage!,
+                              width: 100,
+                              height: 100,
+                              fit: BoxFit.cover,
+                            )
+                          : _base64Image != null
+                              ? Image.memory(
+                                  base64Decode(_base64Image!),
+                                  width: 100,
+                                  height: 100,
+                                  fit: BoxFit.cover,
+                                )
+                              : const Text("Resim seçilmedi"),
+                      const SizedBox(height: 8),
+                      ElevatedButton(
+                        onPressed: _pickImage,
+                        child: const Text("Resim Seç"),
+                      ),
+                    ],
+                  ),
                 ),
                 const SizedBox(height: 16),
                 Center(

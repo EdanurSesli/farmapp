@@ -4,7 +4,6 @@ import 'package:farmapp/models/market_register.dart';
 import 'package:http/http.dart' as http;
 
 class AuthService {
-  // Farmer register fonksiyonu
   Future<FarmerRegister?> registerFarmer(FarmerRegister farmer) async {
     final response = await http.post(
       Uri.parse('https://farmtwomarket.com/api/Auth/FarmerRegister'),
@@ -21,7 +20,6 @@ class AuthService {
     }
   }
 
-  // Market register fonksiyonu
   Future<MarketRegister?> registerMarket(MarketRegister market) async {
     final response = await http.post(
       Uri.parse('https://farmtwomarket.com/api/Auth/MarketRegister'),
@@ -38,7 +36,6 @@ class AuthService {
     }
   }
 
-  // E-posta doğrulama fonksiyonu
   Future<bool> verifyEmail(String userId, String verificationCode) async {
     try {
       final response = await http.get(
@@ -48,8 +45,7 @@ class AuthService {
 
       if (response.statusCode == 200) {
         final responseData = json.decode(response.body);
-        return responseData['success'] ??
-            false; // success değerine göre dönüş yapılır
+        return responseData['success'] ?? false;
       } else {
         throw Exception('Doğrulama başarısız: ${response.reasonPhrase}');
       }

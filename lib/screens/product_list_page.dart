@@ -21,7 +21,6 @@ class _ProductListPageState extends State<ProductListPage> {
     _productsFuture = _fetchProducts();
   }
 
-  // Ürünleri fetch etmek için metod
   Future<List<Product>> _fetchProducts() async {
     try {
       final productService = ProductService();
@@ -38,7 +37,6 @@ class _ProductListPageState extends State<ProductListPage> {
     }
   }
 
-  // Ürünü silme işlemi
   Future<void> _deleteProduct(int id) async {
     try {
       final productService = ProductService();
@@ -46,7 +44,6 @@ class _ProductListPageState extends State<ProductListPage> {
       String? token = prefs.getString('token');
 
       if (token != null) {
-        // Silme işlemine başlamadan önce loading gösterebiliriz
         showDialog(
           context: context,
           barrierDismissible: false,
@@ -56,11 +53,11 @@ class _ProductListPageState extends State<ProductListPage> {
         );
 
         bool success = await productService.softDeleteProduct(token, id);
-        Navigator.of(context).pop(); // Loading göstergesini kapat
+        Navigator.of(context).pop();
 
         if (success) {
           setState(() {
-            _productsFuture = _fetchProducts(); // Listeyi güncelle
+            _productsFuture = _fetchProducts();
           });
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Ürün başarıyla silindi.')),
@@ -121,9 +118,9 @@ class _ProductListPageState extends State<ProductListPage> {
                       vertical: 8.0, horizontal: 16.0),
                   elevation: 4,
                   child: ListTile(
-                    leading: product.image.isNotEmpty
+                    leading: product.images.isNotEmpty
                         ? Image.memory(
-                            base64Decode(product.image),
+                            base64Decode(product.images[0]),
                             width: 50,
                             height: 50,
                             fit: BoxFit.cover,
@@ -150,11 +147,9 @@ class _ProductListPageState extends State<ProductListPage> {
                     trailing: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        // Silme butonu
                         IconButton(
                           icon: const Icon(Icons.delete, color: Colors.red),
                           onPressed: () {
-                            // Silme işlemi
                             showDialog(
                               context: context,
                               builder: (context) {
@@ -172,8 +167,7 @@ class _ProductListPageState extends State<ProductListPage> {
                                     TextButton(
                                       onPressed: () {
                                         Navigator.of(context).pop();
-                                        _deleteProduct(product
-                                            .id); // Burada int ID gönderiliyor
+                                        _deleteProduct(product.id);
                                       },
                                       child: const Text('Evet'),
                                     ),
@@ -183,29 +177,24 @@ class _ProductListPageState extends State<ProductListPage> {
                             );
                           },
                         ),
-                        // Güncelleme butonu (kalem ikonu)
                         IconButton(
                           icon: const Icon(Icons.edit, color: Colors.blue),
                           onPressed: () async {
-                            // SharedPreferences'ten token'ı alıyoruz
                             SharedPreferences prefs =
                                 await SharedPreferences.getInstance();
-                            String? token = prefs.getString(
-                                'token'); // Token key'inizi doğru olarak kullanın
+                            String? token = prefs.getString('token');
 
                             if (token != null) {
-                              // Güncelleme sayfasına yönlendirme
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
                                   builder: (context) => UpdateProductPage(
                                     product: product,
-                                    token: token, // Token'ı burada geçiriyoruz
+                                    token: token,
                                   ),
                                 ),
                               );
                             } else {
-                              // Token bulunamadığında hata mesajı gösterebilirsiniz
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
                                     content: Text(

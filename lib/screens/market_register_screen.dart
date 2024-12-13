@@ -69,8 +69,6 @@ class _MarketRegisterScreenState extends State<MarketRegisterScreen> {
                 decoration: _inputDecoration('Market Adı'),
               ),
               const SizedBox(height: 10),
-
-              // Company Type
               const Text('Şirket Tipi',
                   style: TextStyle(fontWeight: FontWeight.bold)),
               const SizedBox(height: 5),
@@ -91,8 +89,6 @@ class _MarketRegisterScreenState extends State<MarketRegisterScreen> {
                 decoration: _inputDecoration('Şirket Tipi'),
               ),
               const SizedBox(height: 10),
-
-              // First Name
               const Text('Adınız',
                   style: TextStyle(fontWeight: FontWeight.bold)),
               const SizedBox(height: 5),
@@ -101,8 +97,6 @@ class _MarketRegisterScreenState extends State<MarketRegisterScreen> {
                 decoration: _inputDecoration('Adınız'),
               ),
               const SizedBox(height: 10),
-
-              // Last Name
               const Text('Soyadınız',
                   style: TextStyle(fontWeight: FontWeight.bold)),
               const SizedBox(height: 5),
@@ -111,8 +105,6 @@ class _MarketRegisterScreenState extends State<MarketRegisterScreen> {
                 decoration: _inputDecoration('Soyadınız'),
               ),
               const SizedBox(height: 10),
-
-              // Username
               const Text('Kullanıcı Adı',
                   style: TextStyle(fontWeight: FontWeight.bold)),
               const SizedBox(height: 5),
@@ -121,8 +113,6 @@ class _MarketRegisterScreenState extends State<MarketRegisterScreen> {
                 decoration: _inputDecoration('Kullanıcı Adı'),
               ),
               const SizedBox(height: 10),
-
-              // Email
               const Text('Email',
                   style: TextStyle(fontWeight: FontWeight.bold)),
               const SizedBox(height: 5),
@@ -131,8 +121,6 @@ class _MarketRegisterScreenState extends State<MarketRegisterScreen> {
                 decoration: _inputDecoration('Email'),
               ),
               const SizedBox(height: 10),
-
-              // Address
               const Text('Adres',
                   style: TextStyle(fontWeight: FontWeight.bold)),
               const SizedBox(height: 5),
@@ -141,8 +129,6 @@ class _MarketRegisterScreenState extends State<MarketRegisterScreen> {
                 decoration: _inputDecoration('Adres'),
               ),
               const SizedBox(height: 10),
-
-              // Password
               const Text('Şifre',
                   style: TextStyle(fontWeight: FontWeight.bold)),
               const SizedBox(height: 5),
@@ -152,8 +138,6 @@ class _MarketRegisterScreenState extends State<MarketRegisterScreen> {
                 decoration: _inputDecoration('Şifre'),
               ),
               const SizedBox(height: 10),
-
-              // Confirm Password
               const Text('Şifre Doğrulama',
                   style: TextStyle(fontWeight: FontWeight.bold)),
               const SizedBox(height: 5),
@@ -163,8 +147,6 @@ class _MarketRegisterScreenState extends State<MarketRegisterScreen> {
                 decoration: _inputDecoration('Şifre Doğrulama'),
               ),
               const SizedBox(height: 20),
-
-              // Register Button
               ElevatedButton(
                 onPressed: () async {
                   String firstName = firstNameController.text;
@@ -221,8 +203,6 @@ class _MarketRegisterScreenState extends State<MarketRegisterScreen> {
                 ),
               ),
               const SizedBox(height: 10),
-
-              // Google Register Button
               OutlinedButton(
                 onPressed: () {},
                 child: const Text('Google ile Kayıt Ol'),
