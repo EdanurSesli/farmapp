@@ -9,8 +9,11 @@ class UpdateProductPage extends StatefulWidget {
   final Product product;
   final String token;
 
-  const UpdateProductPage(
-      {super.key, required this.product, required this.token});
+  const UpdateProductPage({
+    Key? key,
+    required this.product,
+    required this.token,
+  }) : super(key: key);
 
   @override
   _UpdateProductPageState createState() => _UpdateProductPageState();
@@ -25,24 +28,26 @@ class _UpdateProductPageState extends State<UpdateProductPage> {
   late TextEditingController _productAddress;
   late TextEditingController _productFullAddress;
   late TextEditingController _productPrice;
+  late TextEditingController _productQuantity;
 
   final ImagePicker _picker = ImagePicker();
-  File? _selectedImage;
-  String? _base64Image; // Türü tek bir string olarak değiştirildi
+  List<File?> _selectedImages = [null, null, null];
+  List<String?> _base64Images = [null, null, null];
 
   final List<String> unitTypes = ['Kilogram', 'Adet', 'Litre', 'Diğer'];
   final List<String> qualityOptions = ['A (En iyi)', 'B', 'C'];
-  final List<String> categories = [
-    'Meyve',
-    'Sebze',
-    'Hayvansal Ürünler',
-    'Tahıllar ve Baklagiller',
-    'Ev Yapımı Ürünler'
+  final List<Map<String, dynamic>> categories = [
+    {'id': 1, 'name': 'Meyve'},
+    {'id': 2, 'name': 'Sebze'},
+    {'id': 3, 'name': 'Hayvansal Ürünler'},
+    {'id': 4, 'name': 'Tahıllar ve Baklagiller'},
+    {'id': 5, 'name': 'Ev Yapımı Ürünler'}
   ];
 
   late String? selectedUnitType;
   late String? selectedQuality;
-  late String? selectedCategory;
+  late int? selectedCategoryId;
+  late bool isActive;
 
   @override
   void initState() {
@@ -57,20 +62,26 @@ class _UpdateProductPageState extends State<UpdateProductPage> {
         TextEditingController(text: widget.product.fullAddress);
     _productPrice =
         TextEditingController(text: widget.product.price.toString());
+    _productQuantity =
+        TextEditingController(text: widget.product.quantity.toString());
 
     selectedUnitType = widget.product.unitType;
     selectedQuality = widget.product.quality;
-    selectedCategory = widget.product.categoryId.toString();
-    _base64Image =
-        widget.product.images.isNotEmpty ? widget.product.images[0] : null;
+    selectedCategoryId = widget.product.categoryId;
+    isActive = widget.product.isActive;
+
+    _base64Images[0] = widget.product.image1;
+    _base64Images[1] = widget.product.image2;
+    _base64Images[2] = widget.product.image3;
   }
 
-  Future<void> _pickImage() async {
+  Future<void> _pickImage(int index) async {
     final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
       setState(() {
-        _selectedImage = File(pickedFile.path);
-        _base64Image = base64Encode(_selectedImage!.readAsBytesSync());
+        _selectedImages[index] = File(pickedFile.path);
+        _base64Images[index] =
+            base64Encode(_selectedImages[index]!.readAsBytesSync());
       });
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -83,11 +94,18 @@ class _UpdateProductPageState extends State<UpdateProductPage> {
     return InputDecoration(
       hintText: hintText,
       border: OutlineInputBorder(
-        borderSide: const BorderSide(color: Colors.blue, width: 2),
+        borderSide:
+            BorderSide(color: Color.fromARGB(255, 114, 154, 104), width: 2),
         borderRadius: BorderRadius.circular(8),
       ),
       focusedBorder: OutlineInputBorder(
-        borderSide: const BorderSide(color: Colors.blue, width: 2),
+        borderSide:
+            BorderSide(color: Color.fromARGB(255, 114, 154, 104), width: 2),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderSide:
+            BorderSide(color: Color.fromARGB(255, 114, 154, 104), width: 2),
         borderRadius: BorderRadius.circular(8),
       ),
       contentPadding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
@@ -105,15 +123,15 @@ class _UpdateProductPageState extends State<UpdateProductPage> {
         weightOrAmount: int.tryParse(_productWeightOrAmount.text) ?? 0,
         address: _productAddress.text,
         fullAddress: _productFullAddress.text,
-        categoryId: selectedCategory != null && selectedCategory!.isNotEmpty
-            ? int.parse(selectedCategory!)
-            : 0,
+        categoryId: selectedCategoryId ?? 0,
         quality: selectedQuality ?? '',
         price: double.tryParse(_productPrice.text) ?? 0.0,
-        images: _base64Image != null ? [_base64Image!] : widget.product.images,
+        image1: _base64Images[0],
+        image2: _base64Images[1],
+        image3: _base64Images[2],
         unitType: selectedUnitType ?? '',
-        quantity: widget.product.quantity,
-        isActive: true,
+        quantity: int.tryParse(_productQuantity.text) ?? 0,
+        isActive: isActive,
       );
 
       final productService = ProductService();
@@ -172,41 +190,163 @@ class _UpdateProductPageState extends State<UpdateProductPage> {
                 const SizedBox(height: 8),
                 TextFormField(
                   controller: _productDescription,
-                  decoration:
-                      _customInputDecoration("Ürünün açıklamasını girin"),
+                  decoration: _customInputDecoration("Ürün açıklamasını girin"),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Ürün açıklaması gerekli';
+                      return 'Ürün miktarı gerekli';
                     }
                     return null;
                   },
                 ),
                 const SizedBox(height: 16),
-                const Text("Ürün Resmi",
+                const Text("Ürün Ağırlık / Miktar",
                     style: TextStyle(fontWeight: FontWeight.bold)),
                 const SizedBox(height: 8),
-                Center(
-                  child: Column(
+                TextFormField(
+                  controller: _productWeightOrAmount,
+                  keyboardType: TextInputType.number,
+                  decoration: _customInputDecoration("Ürün miktarını girin"),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Ürün miktarı gerekli';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 16),
+                const Text("Adres(İlçe-İl)",
+                    style: TextStyle(fontWeight: FontWeight.bold)),
+                const SizedBox(height: 8),
+                TextFormField(
+                  controller: _productAddress,
+                  decoration: _customInputDecoration("Ürün adresini girin"),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Ürün adresi gerekli';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 16),
+                const Text("Detaylı Adres",
+                    style: TextStyle(fontWeight: FontWeight.bold)),
+                const SizedBox(height: 8),
+                TextFormField(
+                  controller: _productFullAddress,
+                  decoration: _customInputDecoration("Detaylı adresi girin"),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Ürün detaylı adresi gerekli';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 16),
+                const Text("Kategori Seçimi",
+                    style: TextStyle(fontWeight: FontWeight.bold)),
+                const SizedBox(height: 8),
+                DropdownButtonFormField<int>(
+                  value: selectedCategoryId,
+                  decoration: _customInputDecoration("Kategori seçin"),
+                  items: categories.map((category) {
+                    return DropdownMenuItem<int>(
+                      value: category['id'],
+                      child: Text(category['name']),
+                    );
+                  }).toList(),
+                  onChanged: (value) {
+                    setState(() {
+                      selectedCategoryId = value;
+                    });
+                  },
+                ),
+                const SizedBox(height: 16),
+                const Text("Kalite Seçimi",
+                    style: TextStyle(fontWeight: FontWeight.bold)),
+                const SizedBox(height: 8),
+                DropdownButtonFormField<String>(
+                  value: selectedQuality,
+                  decoration: _customInputDecoration("Kalite seçin"),
+                  items: qualityOptions.map((quality) {
+                    return DropdownMenuItem<String>(
+                      value: quality,
+                      child: Text(quality),
+                    );
+                  }).toList(),
+                  onChanged: (value) {
+                    setState(() {
+                      selectedQuality = value;
+                    });
+                  },
+                ),
+                const SizedBox(height: 16),
+                const Text("Birimi Seçin",
+                    style: TextStyle(fontWeight: FontWeight.bold)),
+                const SizedBox(height: 8),
+                DropdownButtonFormField<String>(
+                  value: selectedUnitType,
+                  decoration: _customInputDecoration("Birimi seçin"),
+                  items: unitTypes.map((unit) {
+                    return DropdownMenuItem<String>(
+                      value: unit,
+                      child: Text(unit),
+                    );
+                  }).toList(),
+                  onChanged: (value) {
+                    setState(() {
+                      selectedUnitType = value;
+                    });
+                  },
+                ),
+                const SizedBox(height: 16),
+                const Text("Ürün Resimleri",
+                    style: TextStyle(fontWeight: FontWeight.bold)),
+                const SizedBox(height: 8),
+                for (int i = 0; i < 3; i++)
+                  Column(
                     children: [
-                      _selectedImage != null
-                          ? Image.file(
-                              _selectedImage!,
-                              width: 100,
-                              height: 100,
-                              fit: BoxFit.cover,
-                            )
-                          : _base64Image != null
-                              ? Image.memory(
-                                  base64Decode(_base64Image!),
-                                  width: 100,
-                                  height: 100,
-                                  fit: BoxFit.cover,
-                                )
+                      _selectedImages[i] != null
+                          ? Image.file(_selectedImages[i]!,
+                              width: 100, height: 100, fit: BoxFit.cover)
+                          : _base64Images[i] != null
+                              ? Image.memory(base64Decode(_base64Images[i]!),
+                                  width: 100, height: 100, fit: BoxFit.cover)
                               : const Text("Resim seçilmedi"),
-                      const SizedBox(height: 8),
                       ElevatedButton(
-                        onPressed: _pickImage,
-                        child: const Text("Resim Seç"),
+                        onPressed: () => _pickImage(i),
+                        child: Text("Resim ${i + 1} Seç"),
+                      ),
+                    ],
+                  ),
+                const SizedBox(height: 16),
+                const Text("Pasif mi?",
+                    style: TextStyle(fontWeight: FontWeight.bold)),
+                const SizedBox(height: 8),
+                Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                      color: const Color.fromARGB(255, 114, 154, 104),
+                      width: 2,
+                    ),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        "Pasif mi?",
+                        style: TextStyle(fontSize: 16),
+                      ),
+                      Switch(
+                        value: isActive,
+                        onChanged: (value) {
+                          setState(() {
+                            isActive = value;
+                          });
+                        },
+                        activeColor: const Color.fromARGB(255, 114, 154, 104),
                       ),
                     ],
                   ),
@@ -215,6 +355,11 @@ class _UpdateProductPageState extends State<UpdateProductPage> {
                 Center(
                   child: ElevatedButton(
                     onPressed: _updateProduct,
+                    style: ElevatedButton.styleFrom(
+                      minimumSize: const Size(double.infinity, 50),
+                      backgroundColor: const Color.fromRGBO(133, 8, 62, 1),
+                      foregroundColor: Colors.white,
+                    ),
                     child: const Text('Ürünü Güncelle'),
                   ),
                 ),

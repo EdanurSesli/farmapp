@@ -1,3 +1,5 @@
+import 'package:farmapp/screens/about_screen.dart';
+import 'package:farmapp/screens/privacy_policy_screen.dart';
 import 'package:flutter/material.dart';
 
 class SettingsScreen extends StatelessWidget {
@@ -20,29 +22,25 @@ class SettingsScreen extends StatelessWidget {
           ),
           const Divider(),
           ListTile(
-            leading: const Icon(Icons.notifications),
-            title: const Text('Bildirim Ayarları'),
-            subtitle: const Text('Bildirim tercihlerinizi değiştirin'),
-            onTap: () {},
-          ),
-          const Divider(),
-          ListTile(
-            leading: const Icon(Icons.palette),
-            title: const Text('Tema'),
-            subtitle: const Text('Uygulama temasını değiştirin'),
-            onTap: () {},
-          ),
-          const Divider(),
-          ListTile(
             leading: const Icon(Icons.privacy_tip),
             title: const Text('Gizlilik Politikası'),
-            onTap: () {},
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => PrivacyPolicyScreen()),
+              );
+            },
           ),
           const Divider(),
           ListTile(
             leading: const Icon(Icons.info),
             title: const Text('Hakkında'),
-            onTap: () {},
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => AboutScreen()),
+              );
+            },
           ),
         ],
       ),

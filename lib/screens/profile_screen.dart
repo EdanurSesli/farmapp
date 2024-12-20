@@ -1,3 +1,4 @@
+import 'package:farmapp/screens/customer_service_screen.dart';
 import 'package:farmapp/screens/home_screen.dart';
 import 'package:farmapp/screens/product_list_page.dart';
 import 'package:farmapp/screens/settings_screen.dart';
@@ -166,7 +167,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ListTile(
               leading: const Icon(Icons.support_agent),
               title: const Text('Farm2Market Müşteri Hizmetleri'),
-              onTap: () {},
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => CustomerServiceScreen()),
+                );
+              },
             ),
             ListTile(
               leading: const Icon(Icons.logout),

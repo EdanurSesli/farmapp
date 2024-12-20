@@ -38,6 +38,13 @@ class _ProductAddScreenState extends State<ProductAddScreen> {
   String? selectedQuality = 'A (En iyi)';
 
   Future<void> pickImage() async {
+    if (_base64Image != null && _base64Image!.length >= 3) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("En fazla 3 resim ekleyebilirsiniz.")),
+      );
+      return;
+    }
+
     final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
       setState(() {
@@ -275,7 +282,7 @@ class _ProductAddScreenState extends State<ProductAddScreen> {
                   },
                 ),
                 const SizedBox(height: 16),
-                const Text("Ürün Görseli",
+                const Text("Ürün Görselleri",
                     style: TextStyle(fontWeight: FontWeight.bold)),
                 const SizedBox(height: 8),
                 Row(
@@ -292,23 +299,25 @@ class _ProductAddScreenState extends State<ProductAddScreen> {
                       ),
                     ),
                     const SizedBox(width: 16),
-                    _base64Image != null && _base64Image!.isNotEmpty
-                        ? SizedBox(
-                            height: 100,
-                            width: 100,
-                            child: PageView.builder(
-                              itemCount: _base64Image!.length,
-                              itemBuilder: (context, index) {
-                                return Image.memory(
-                                  base64Decode(_base64Image![index]),
-                                  fit: BoxFit.cover,
-                                  height: 100,
-                                  width: 100,
+                    Expanded(
+                      child: _base64Image != null && _base64Image!.isNotEmpty
+                          ? Wrap(
+                              spacing: 8,
+                              runSpacing: 8,
+                              children: _base64Image!.map((image) {
+                                return ClipRRect(
+                                  borderRadius: BorderRadius.circular(8),
+                                  child: Image.memory(
+                                    base64Decode(image),
+                                    height: 100,
+                                    width: 100,
+                                    fit: BoxFit.cover,
+                                  ),
                                 );
-                              },
-                            ),
-                          )
-                        : const Text("Fotoğraf seçilmedi"),
+                              }).toList(),
+                            )
+                          : const Text("Fotoğraf seçilmedi"),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 16),
@@ -327,15 +336,23 @@ class _ProductAddScreenState extends State<ProductAddScreen> {
                           description: _productDescription.text,
                           weightOrAmount:
                               int.tryParse(_productWeightOrAmount.text) ?? 0,
-                          address:
-                              _productAddress.text + _productFullAddress.text,
+                          address: _productAddress.text,
                           fullAddress: _productFullAddress.text,
                           categoryId: selectedCategoryId ?? 0,
                           quality: selectedQuality ?? '',
+                          quantity:
+                              int.tryParse(_productWeightOrAmount.text) ?? 1,
                           price: double.tryParse(_productPrice.text) ?? 0.0,
-                          images: _base64Image ?? [],
+                          image1: _base64Image!.isNotEmpty
+                              ? _base64Image![0]
+                              : null, // İlk resim
+                          image2: _base64Image!.length > 1
+                              ? _base64Image![1]
+                              : null, // İkinci resim
+                          image3: _base64Image!.length > 2
+                              ? _base64Image![2]
+                              : null, // Üçüncü resim
                           unitType: selectedUnitType ?? '',
-                          quantity: quantity,
                           isActive: true,
                         );
 

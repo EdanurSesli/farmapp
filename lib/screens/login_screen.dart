@@ -5,6 +5,7 @@ import 'dart:convert';
 
 import 'profile_screen.dart';
 import 'register_screen.dart';
+import 'email_verification_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -55,6 +56,14 @@ class _LoginScreenState extends State<LoginScreen> {
       return;
     }
 
+    if (!RegExp(r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}")
+        .hasMatch(email)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Geçersiz e-posta formatı')),
+      );
+      return;
+    }
+
     const String url = 'https://farmtwomarket.com/api/Auth/Login';
     setState(() {
       _isLoading = true;
@@ -73,24 +82,40 @@ class _LoginScreenState extends State<LoginScreen> {
 
       if (response.statusCode == 200) {
         final responseData = json.decode(response.body);
+        print('Giriş Yanıtı: ${response.body}');
 
-        if (responseData['data'] != null &&
-            responseData['data']['token'] != null) {
+        if (responseData.containsKey('data') &&
+            responseData['data'] != null &&
+            responseData['data'].containsKey('token')) {
           SharedPreferences prefs = await SharedPreferences.getInstance();
           await prefs.setBool('isLoggedIn', true);
           await prefs.setString('token', responseData['data']['token']);
           await prefs.setString('userName', responseData['data']['userName']);
           await prefs.setString('email', responseData['data']['email']);
 
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (context) => ProfileScreen(
-                userName: responseData['data']['userName'],
-                email: responseData['data']['email'],
+          bool isEmailConfirmed = responseData['data']['emailConfirmed'];
+          int? confirmationNumber = responseData['data']['confirmationNumber'];
+          if (!isEmailConfirmed && confirmationNumber != null) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => EmailVerificationScreen(
+                  token: responseData['data']['token'],
+                  confirmationNumber: confirmationNumber,
+                ),
               ),
-            ),
-          );
+            );
+          } else {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => ProfileScreen(
+                  userName: responseData['data']['userName'],
+                  email: responseData['data']['email'],
+                ),
+              ),
+            );
+          }
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Kullanıcı bilgileri alınamadı.')),

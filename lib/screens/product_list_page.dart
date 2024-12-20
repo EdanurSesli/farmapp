@@ -92,6 +92,7 @@ class _ProductListPageState extends State<ProductListPage> {
         backgroundColor: const Color.fromRGBO(133, 8, 62, 1),
         elevation: 0,
         automaticallyImplyLeading: true,
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: FutureBuilder<List<Product>>(
         future: _productsFuture,
@@ -118,14 +119,15 @@ class _ProductListPageState extends State<ProductListPage> {
                       vertical: 8.0, horizontal: 16.0),
                   elevation: 4,
                   child: ListTile(
-                    leading: product.images.isNotEmpty
-                        ? Image.memory(
-                            base64Decode(product.images[0]),
-                            width: 50,
-                            height: 50,
-                            fit: BoxFit.cover,
-                          )
-                        : const Icon(Icons.image, size: 50),
+                    leading:
+                        product.image1 != null && product.image1!.isNotEmpty
+                            ? Image.memory(
+                                base64Decode(product.image1!),
+                                width: 50,
+                                height: 50,
+                                fit: BoxFit.cover,
+                              )
+                            : const Icon(Icons.image, size: 50),
                     title: Text(product.name,
                         style: const TextStyle(
                             fontSize: 18, fontWeight: FontWeight.bold)),

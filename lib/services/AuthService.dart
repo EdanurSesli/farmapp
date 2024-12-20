@@ -1,12 +1,15 @@
 import 'dart:convert';
 import 'package:farmapp/models/farmer_register.dart';
 import 'package:farmapp/models/market_register.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 
 class AuthService {
+  final String baseUrl = 'https://farmtwomarket.com/api/Auth';
+
   Future<FarmerRegister?> registerFarmer(FarmerRegister farmer) async {
     final response = await http.post(
-      Uri.parse('https://farmtwomarket.com/api/Auth/FarmerRegister'),
+      Uri.parse('$baseUrl/FarmerRegister'),
       headers: {'Content-Type': 'application/json'},
       body: json.encode(farmer.toJson()),
     );
@@ -22,7 +25,7 @@ class AuthService {
 
   Future<MarketRegister?> registerMarket(MarketRegister market) async {
     final response = await http.post(
-      Uri.parse('https://farmtwomarket.com/api/Auth/MarketRegister'),
+      Uri.parse('$baseUrl/MarketRegister'),
       headers: {'Content-Type': 'application/json'},
       body: json.encode(market.toJson()),
     );
@@ -36,21 +39,34 @@ class AuthService {
     }
   }
 
-  Future<bool> verifyEmail(String userId, String verificationCode) async {
+  Future<bool> verifyEmail(String token, int confirmationNumber) async {
+    final url = Uri.parse('https://farmtwomarket.com/api/Auth/ConfirmMail');
+    final headers = {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer $token',
+    };
+    final body = json.encode({
+      'number': confirmationNumber,
+    });
+
     try {
-      final response = await http.get(
-        Uri.parse(
-            'https://farmtwomarket.com/api/Auth/ConfirmMail?id=$userId&number=$verificationCode'),
-      );
+      final response = await http.post(url, headers: headers, body: body);
 
       if (response.statusCode == 200) {
         final responseData = json.decode(response.body);
-        return responseData['success'] ?? false;
+        if (responseData['success'] == true) {
+          SharedPreferences prefs = await SharedPreferences.getInstance();
+          await prefs.setBool('isEmailVerified', true);
+          return true;
+        } else {
+          throw Exception(responseData['message'] ?? 'Doğrulama başarısız.');
+        }
       } else {
-        throw Exception('Doğrulama başarısız: ${response.reasonPhrase}');
+        throw Exception(
+            'Doğrulama başarısız: ${response.statusCode} - ${response.reasonPhrase}');
       }
-    } catch (e) {
-      throw Exception('API çağrısı sırasında hata oluştu: $e');
+    } catch (error) {
+      throw Exception('Email doğrulama işlemi sırasında hata oluştu: $error');
     }
   }
 }

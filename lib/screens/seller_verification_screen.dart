@@ -1,7 +1,36 @@
 import 'package:flutter/material.dart';
 
-class SellerVerificationScreen extends StatelessWidget {
+class SellerVerificationScreen extends StatefulWidget {
   const SellerVerificationScreen({super.key});
+
+  @override
+  _SellerVerificationScreenState createState() =>
+      _SellerVerificationScreenState();
+}
+
+class _SellerVerificationScreenState extends State<SellerVerificationScreen> {
+  bool _isDocumentUploaded = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkIfDocumentUploaded();
+  }
+
+  void _checkIfDocumentUploaded() {
+    setState(() {
+      _isDocumentUploaded = false;
+    });
+  }
+
+  void _uploadDocument() {
+    setState(() {
+      _isDocumentUploaded = true;
+    });
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Belgeniz yüklendi, kontrol aşamasında.')),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -29,9 +58,11 @@ class SellerVerificationScreen extends StatelessWidget {
                 border: Border.all(color: Colors.blue, width: 1.5),
                 borderRadius: BorderRadius.circular(12.0),
               ),
-              child: const Text(
-                'Çiftçilik yaptığınıza dair bir belgeniz veya ürünlerinizin içeriğine ilişkin belgeleriniz varsa yükleyiniz. Bu belgeleri yükleyerek profilinizde doğruluğunuzu ve güvenilirliğinizi gösterebilirsiniz.',
-                style: TextStyle(
+              child: Text(
+                _isDocumentUploaded
+                    ? 'Belgeniz yüklendi, kontrol aşamasında.'
+                    : 'Çiftçilik yaptığınıza dair bir belgeniz veya ürünlerinizin içeriğine ilişkin belgeleriniz varsa yükleyiniz. Bu belgeleri yükleyerek profilinizde doğruluğunuzu ve güvenilirliğinizi gösterebilirsiniz.',
+                style: const TextStyle(
                   fontSize: 16,
                   color: Colors.black87,
                   fontWeight: FontWeight.w500,
@@ -40,22 +71,23 @@ class SellerVerificationScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 32),
-            Center(
-              child: ElevatedButton.icon(
-                onPressed: () {},
-                icon: const Icon(Icons.add),
-                label: const Text('Belge Ekle'),
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 16.0,
-                    horizontal: 24.0,
+            if (!_isDocumentUploaded)
+              Center(
+                child: ElevatedButton.icon(
+                  onPressed: _uploadDocument,
+                  icon: const Icon(Icons.add),
+                  label: const Text('Belge Ekle'),
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 16.0,
+                      horizontal: 24.0,
+                    ),
+                    backgroundColor: const Color.fromRGBO(133, 8, 62, 1),
+                    foregroundColor: Colors.white,
+                    textStyle: const TextStyle(fontSize: 16),
                   ),
-                  backgroundColor: const Color.fromRGBO(133, 8, 62, 1),
-                  foregroundColor: Colors.white,
-                  textStyle: const TextStyle(fontSize: 16),
                 ),
               ),
-            ),
           ],
         ),
       ),

@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "744487376357",
+    "project_id": "farm2market-a9137",
+    "storage_bucket": "farm2market-a9137.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:744487376357:android:a2b2c3da0f459c456b4b0c",
+        "android_client_info": {
+          "package_name": "com.example.farmapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "744487376357-rvon3dmls3dnnhti44ssnm0sv4t7mod9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCpvypfheFZ9JMqi5EFg6nj0rXvBO4liKU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "744487376357-rvon3dmls3dnnhti44ssnm0sv4t7mod9.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "744487376357-73s8s31cihnd4gc3pdphfvj32635jebj.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.farmapp"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

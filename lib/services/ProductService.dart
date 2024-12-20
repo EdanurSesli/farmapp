@@ -5,7 +5,6 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ProductService {
-  // Ürün ekleme
   Future<bool> addProduct(Product product) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var token = prefs.getString('token');
@@ -37,7 +36,6 @@ class ProductService {
     }
   }
 
-  // Tüm ürünleri almak için
   Future<List<Product>> getAllProducts() async {
     final url = Uri.parse('https://farmtwomarket.com/api/Product/GetProducts');
 
@@ -55,7 +53,6 @@ class ProductService {
     }
   }
 
-  // Kullanıcının ürünlerini almak için
   Future<List<Product>> fetchProducts(String token) async {
     final url =
         Uri.parse('https://farmtwomarket.com/api/Product/GetProductsByFarmer');
@@ -79,7 +76,6 @@ class ProductService {
     }
   }
 
-  // Ürün silme
   Future<bool> softDeleteProduct(String token, int id) async {
     final url = Uri.parse(
         'https://farmtwomarket.com/api/Product/SoftDeleteProduct/$id');
@@ -102,10 +98,9 @@ class ProductService {
     }
   }
 
-  // Ürün güncelleme
   Future<bool> updateProduct(Product product, String token) async {
-    final url =
-        Uri.parse('https://farmtwomarket.com/api/Product/UpdateProduct');
+    final url = Uri.parse(
+        'https://farmtwomarket.com/api/Product/UpdateProduct?id=${product.id}');
 
     final headers = {
       'Content-Type': 'application/json',
@@ -113,10 +108,22 @@ class ProductService {
     };
 
     try {
+      final Map<String, dynamic> productJson = product.toJson();
+
+      if (product.image1 != null && product.image1!.isNotEmpty) {
+        productJson['image1'] = product.image1;
+      }
+      if (product.image2 != null && product.image2!.isNotEmpty) {
+        productJson['image2'] = product.image2;
+      }
+      if (product.image3 != null && product.image3!.isNotEmpty) {
+        productJson['image3'] = product.image3;
+      }
+
       final response = await http.put(
         url,
         headers: headers,
-        body: json.encode(product.toJson()),
+        body: json.encode(productJson),
       );
 
       if (response.statusCode == 200) {
@@ -131,32 +138,19 @@ class ProductService {
     }
   }
 
-  // Kategorileri almak için
   Future<List<Category>> getCategories() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? token = prefs.getString('token');
-
-    if (token == null) {
-      throw Exception('Geçerli bir token bulunamadı.');
-    }
-
+    const String apiUrl = 'https://example.com/api/GetCategory';
     try {
-      final response = await http.get(
-        Uri.parse('https://farmtwomarket.com/api/Product/GetCategory'),
-        headers: {
-          'Authorization': 'Bearer $token',
-          'Content-Type': 'application/json',
-        },
-      );
-
+      final response = await http.get(Uri.parse(apiUrl));
       if (response.statusCode == 200) {
-        List<dynamic> data = json.decode(response.body);
-        return data.map((category) => Category.fromJson(category)).toList();
+        final List<dynamic> data = json.decode(response.body);
+        return data.map((item) => Category.fromJson(item)).toList();
       } else {
-        throw Exception('Kategoriler alınamadı: ${response.statusCode}');
+        throw Exception('Failed to load categories');
       }
     } catch (error) {
-      throw Exception('Kategoriler alınırken hata oluştu: $error');
+      print("Kategori API çağrısı sırasında hata oluştu: $error");
+      rethrow;
     }
   }
 }

@@ -1,10 +1,10 @@
-import 'dart:convert'; // Base64 çözümü için gerekli
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../providers/product_provider.dart';
 import 'package:farmapp/screens/product_detail_screen.dart';
-import 'package:farmapp/models/product_add.dart'; // Product modelini dahil et
+import 'package:farmapp/models/product_add.dart';
 
 class HomeContent extends StatefulWidget {
   const HomeContent({super.key});
@@ -16,11 +16,20 @@ class HomeContent extends StatefulWidget {
 class _HomeContentState extends State<HomeContent> {
   bool _isLoading = false;
   List<Product> _allProducts = [];
+  List<Product> _filteredProducts = [];
+  TextEditingController _searchController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
     loadProducts();
+    _searchController.addListener(_filterProducts);
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
   }
 
   Future<void> loadProducts() async {
@@ -34,6 +43,7 @@ class _HomeContentState extends State<HomeContent> {
 
       setState(() {
         _allProducts = products;
+        _filteredProducts = products;
         _isLoading = false;
       });
     } catch (e) {
@@ -44,6 +54,15 @@ class _HomeContentState extends State<HomeContent> {
     }
   }
 
+  void _filterProducts() {
+    final query = _searchController.text.toLowerCase();
+    setState(() {
+      _filteredProducts = _allProducts
+          .where((product) => product.name.toLowerCase().contains(query))
+          .toList();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -51,6 +70,7 @@ class _HomeContentState extends State<HomeContent> {
         Padding(
           padding: const EdgeInsets.all(16.0),
           child: TextField(
+            controller: _searchController,
             decoration: InputDecoration(
               hintText: 'Arama',
               prefixIcon: const Icon(Icons.search),
@@ -81,7 +101,7 @@ class _HomeContentState extends State<HomeContent> {
         Expanded(
           child: _isLoading
               ? const Center(child: CircularProgressIndicator())
-              : _allProducts.isEmpty
+              : _filteredProducts.isEmpty
                   ? const Center(child: Text('Ürün bulunamadı.'))
                   : GridView.builder(
                       padding: const EdgeInsets.all(8.0),
@@ -92,9 +112,9 @@ class _HomeContentState extends State<HomeContent> {
                         mainAxisSpacing: 8.0,
                         childAspectRatio: 0.7,
                       ),
-                      itemCount: _allProducts.length,
+                      itemCount: _filteredProducts.length,
                       itemBuilder: (context, index) {
-                        final product = _allProducts[index];
+                        final product = _filteredProducts[index];
                         return GestureDetector(
                           onTap: () {
                             Navigator.push(
@@ -118,13 +138,35 @@ class _HomeContentState extends State<HomeContent> {
                                     borderRadius: const BorderRadius.vertical(
                                       top: Radius.circular(10.0),
                                     ),
-                                    child: product.images.isNotEmpty
+                                    child: product.image1 != null ||
+                                            product.image2 != null ||
+                                            product.image3 != null
                                         ? PageView.builder(
-                                            itemCount: product.images.length,
+                                            itemCount: [
+                                              product.image1,
+                                              product.image2,
+                                              product.image3
+                                            ].where((e) => e != null).length,
                                             itemBuilder: (context, imageIndex) {
+                                              final images = [
+                                                product.image1,
+                                                product.image2,
+                                                product.image3
+                                              ]
+                                                  .where((e) => e != null)
+                                                  .cast<String>()
+                                                  .toList();
+
+                                              if (imageIndex >= images.length) {
+                                                return const Center(
+                                                  child:
+                                                      Text("Geçersiz resim!"),
+                                                );
+                                              }
+
                                               return Image.memory(
                                                 base64Decode(
-                                                    product.images[imageIndex]),
+                                                    images[imageIndex]),
                                                 fit: BoxFit.cover,
                                                 width: double.infinity,
                                                 height: double.infinity,

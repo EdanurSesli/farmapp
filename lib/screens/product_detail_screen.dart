@@ -1,6 +1,6 @@
+import 'dart:convert';
 import 'package:farmapp/models/product_add.dart';
 import 'package:farmapp/providers/cart_provider.dart';
-import 'package:farmapp/providers/product_provider.dart';
 import 'package:farmapp/screens/cart_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -17,6 +17,7 @@ class ProductDetailScreen extends StatefulWidget {
 class _ProductDetailScreenState extends State<ProductDetailScreen> {
   int _quantity = 1;
   late double _totalPrice;
+  String? _errorMessage;
 
   @override
   void initState() {
@@ -33,82 +34,110 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
   void _onQuantityChanged(String value) {
     final int? quantity = int.tryParse(value);
     if (quantity != null && quantity > 0) {
-      setState(() {
-        _quantity = quantity;
-        _calculateTotalPrice();
-      });
+      if (quantity <= widget.product.weightOrAmount) {
+        setState(() {
+          _quantity = quantity;
+          _errorMessage = null;
+          _calculateTotalPrice();
+        });
+      } else {
+        setState(() {
+          _errorMessage = "Miktar stoktan fazla olamaz!";
+        });
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    List<String?> productImages = [
+      widget.product.image1,
+      widget.product.image2,
+      widget.product.image3,
+    ];
+
+    List<String> validImages = productImages
+        .where((image) => image != null && image.isNotEmpty)
+        .cast<String>()
+        .toList();
+
     return Scaffold(
       appBar: AppBar(
         title: const Text(
           "Ürün Detayı",
-          style: TextStyle(
-            color: Colors.white,
-          ),
+          style: TextStyle(color: Colors.white),
         ),
         backgroundColor: const Color.fromRGBO(133, 8, 62, 1),
         elevation: 0,
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              height: 250,
-              width: double.infinity,
-              color: Colors.grey[300],
-              child: const Center(
-                child: Text(
-                  "Resim",
-                  style: TextStyle(fontSize: 20.0),
-                ),
-              ),
+            SizedBox(
+              height: 300,
+              child: validImages.isNotEmpty
+                  ? PageView.builder(
+                      itemCount: validImages.length,
+                      itemBuilder: (context, index) {
+                        return Image.memory(
+                          base64Decode(validImages[index]),
+                          fit: BoxFit.cover,
+                          width: double.infinity,
+                        );
+                      },
+                    )
+                  : Container(
+                      color: Colors.grey[200],
+                      child: const Center(
+                        child: Icon(
+                          Icons.image_not_supported,
+                          size: 50,
+                          color: Colors.grey,
+                        ),
+                      ),
+                    ),
             ),
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    widget.product.name,
-                    style: const TextStyle(
-                      fontSize: 24.0,
-                      fontWeight: FontWeight.bold,
-                    ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        widget.product.name,
+                        style: const TextStyle(
+                          fontSize: 24.0,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Text(
+                        "${widget.product.price.toStringAsFixed(2)} ₺",
+                        style: const TextStyle(
+                          fontSize: 20.0,
+                          color: Colors.green,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 8.0),
                   Text(
-                    "${widget.product.price.toStringAsFixed(2)} ₺ - ${widget.product.weightOrAmount}",
-                    style: const TextStyle(
-                      fontSize: 20.0,
-                      color: Colors.green,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    "Stok: ${widget.product.weightOrAmount} ${widget.product.unitType} | Kalite: ${widget.product.quality}",
+                    style: const TextStyle(fontSize: 16.0),
                   ),
                   const SizedBox(height: 8.0),
                   Text(
-                    "Kalite: ${widget.product.quality} | Kategori: ${widget.product.categoryId}",
-                    style: const TextStyle(
-                      fontSize: 16.0,
-                    ),
-                  ),
-                  const SizedBox(height: 8.0),
-                  Text(
-                    "Gönderim: ${widget.product.address.split(',')[0]}, ${widget.product.address.split(',')[1]}",
-                    style: const TextStyle(
-                      fontSize: 16.0,
-                    ),
+                    "Gönderim: ${_formatAddress(widget.product.address)}",
+                    style: const TextStyle(fontSize: 16.0),
                   ),
                   const SizedBox(height: 16.0),
                   Text(
                     widget.product.description,
-                    style: const TextStyle(
-                      fontSize: 16.0,
-                    ),
+                    style: const TextStyle(fontSize: 16.0),
                   ),
                 ],
               ),
@@ -124,14 +153,33 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                         child: TextField(
                           keyboardType: TextInputType.number,
                           decoration: const InputDecoration(
-                            labelText: "Miktar",
+                            labelText: "Miktar giriniz",
                             border: OutlineInputBorder(),
+                            enabledBorder: OutlineInputBorder(
+                              borderSide:
+                                  BorderSide(color: Colors.green, width: 2),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderSide:
+                                  BorderSide(color: Colors.green, width: 2),
+                            ),
                           ),
                           onChanged: _onQuantityChanged,
                         ),
                       ),
                     ],
                   ),
+                  if (_errorMessage != null)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8.0),
+                      child: Text(
+                        _errorMessage!,
+                        style: const TextStyle(
+                          color: Colors.red,
+                          fontSize: 14.0,
+                        ),
+                      ),
+                    ),
                   const SizedBox(height: 8.0),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -173,5 +221,13 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
         ),
       ),
     );
+  }
+
+  String _formatAddress(String address) {
+    final parts = address.split(',');
+    if (parts.length >= 2) {
+      return "${parts[0]}, ${parts[1]}";
+    }
+    return address;
   }
 }

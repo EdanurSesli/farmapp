@@ -1,17 +1,19 @@
 class Product {
-  final int id;
-  final String name;
-  final String description;
-  final int weightOrAmount;
-  final String address;
-  final String fullAddress;
-  final int categoryId; // Kategori için int türünde ID
-  final String quality;
-  final double price;
-  final List<String> images; // Görseller için liste
-  final String unitType;
-  final int quantity;
-  final bool isActive;
+  int id;
+  String name;
+  String description;
+  int weightOrAmount;
+  String address;
+  String fullAddress;
+  int categoryId;
+  String quality;
+  int quantity;
+  double price;
+  String? image1;
+  String? image2;
+  String? image3;
+  String unitType;
+  bool isActive;
 
   Product({
     required this.id,
@@ -20,33 +22,16 @@ class Product {
     required this.weightOrAmount,
     required this.address,
     required this.fullAddress,
-    required this.categoryId, // Kategori ID'si
+    required this.categoryId,
     required this.quality,
-    required this.price,
-    required this.images, // Görseller
-    required this.unitType,
     required this.quantity,
+    required this.price,
+    this.image1,
+    this.image2,
+    this.image3,
+    required this.unitType,
     required this.isActive,
   });
-
-  factory Product.fromJson(Map<String, dynamic> json) {
-    return Product(
-      id: json['id'],
-      name: json['name'],
-      description: json['description'],
-      weightOrAmount: json['weightOrAmount'],
-      address: json['address'],
-      fullAddress: json['fullAddress'],
-      categoryId: json['categoryId'], // categoryId'yi alıyoruz
-      quality: json['quality'],
-      price: (json['price'] as num).toDouble(), // Double olarak parse ediyoruz
-      images:
-          List<String>.from(json['image'] ?? []), // Liste olarak ele alıyoruz
-      unitType: json['unitType'],
-      quantity: json['quantity'],
-      isActive: json['isActive'],
-    );
-  }
 
   Map<String, dynamic> toJson() {
     return {
@@ -56,13 +41,35 @@ class Product {
       'weightOrAmount': weightOrAmount,
       'address': address,
       'fullAddress': fullAddress,
-      'categoryId': categoryId, // categoryId JSON'a ekleniyor
+      'categoryId': categoryId,
       'quality': quality,
-      'price': price,
-      'image': images, // Görseller JSON'a ekleniyor
-      'unitType': unitType,
       'quantity': quantity,
+      'price': price,
+      'image1': image1,
+      'image2': image2,
+      'image3': image3,
+      'unitType': unitType,
       'isActive': isActive,
     };
+  }
+
+  factory Product.fromJson(Map<String, dynamic> json) {
+    return Product(
+      id: json['id'],
+      name: json['name'],
+      description: json['description'],
+      weightOrAmount: json['weightOrAmount'],
+      address: json['address'],
+      fullAddress: json['fullAddress'],
+      categoryId: json['categoryId'],
+      quality: json['quality'],
+      quantity: json['quantity'],
+      price: json['price'].toDouble(),
+      image1: json['image1'],
+      image2: json['image2'],
+      image3: json['image3'],
+      unitType: json['unitType'],
+      isActive: json['isActive'],
+    );
   }
 }
