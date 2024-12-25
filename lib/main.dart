@@ -18,7 +18,6 @@ import 'screens/register_screen.dart';
 import 'screens/profile_screen.dart';
 import 'screens/market_register_screen.dart';
 import 'screens/farmer_register_screen.dart';
-import 'screens/seller_verification_screen.dart';
 import 'screens/order_confirmation_screen.dart';
 import 'screens/favorites_screen.dart';
 import 'screens/categories_screen.dart';
@@ -68,7 +67,6 @@ class Farm2MarketApp extends StatelessWidget {
               ),*/
           '/marketRegister': (context) => const MarketRegisterScreen(),
           '/farmerRegister': (context) => const FarmerRegisterScreen(),
-          '/sellerVerification': (context) => const SellerVerificationScreen(),
           '/orderConfirmation': (context) => const OrderConfirmationScreen(),
           '/favorites': (context) => const FavoritesScreen(),
           '/categories': (context) => const CategoriesScreen(),

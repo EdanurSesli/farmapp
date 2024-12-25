@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import '../providers/product_provider.dart';
 import 'package:farmapp/screens/product_detail_screen.dart';
 import 'package:farmapp/models/product_add.dart';
@@ -17,7 +16,7 @@ class _HomeContentState extends State<HomeContent> {
   bool _isLoading = false;
   List<Product> _allProducts = [];
   List<Product> _filteredProducts = [];
-  TextEditingController _searchController = TextEditingController();
+  final TextEditingController _searchController = TextEditingController();
 
   @override
   void initState() {
@@ -38,19 +37,19 @@ class _HomeContentState extends State<HomeContent> {
     });
 
     try {
-      List<Product> products =
-          await context.read<ProductProvider>().productService.getAllProducts();
-
+      final products = await context.read<ProductProvider>().fetchAllProducts();
       setState(() {
         _allProducts = products;
         _filteredProducts = products;
-        _isLoading = false;
       });
     } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Ürünler yüklenirken bir hata oluştu: $e")),
+      );
+    } finally {
       setState(() {
         _isLoading = false;
       });
-      print("Error loading products: $e");
     }
   }
 
@@ -63,8 +62,21 @@ class _HomeContentState extends State<HomeContent> {
     });
   }
 
+  Future<void> _toggleFavorite(int productId) async {
+    try {
+      await context.read<ProductProvider>().toggleFavorite(productId);
+      setState(() {});
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Favori işlemi sırasında bir hata oluştu: $e")),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final productProvider = context.watch<ProductProvider>();
+
     return Column(
       children: [
         Padding(
@@ -110,11 +122,15 @@ class _HomeContentState extends State<HomeContent> {
                         crossAxisCount: 2,
                         crossAxisSpacing: 8.0,
                         mainAxisSpacing: 8.0,
-                        childAspectRatio: 0.7,
+                        childAspectRatio: 0.8, // Çocuk oranını düzenledik
                       ),
                       itemCount: _filteredProducts.length,
                       itemBuilder: (context, index) {
                         final product = _filteredProducts[index];
+                        final isFavorite = context
+                            .watch<ProductProvider>()
+                            .isFavorite(product.id);
+
                         return GestureDetector(
                           onTap: () {
                             Navigator.push(
@@ -138,9 +154,9 @@ class _HomeContentState extends State<HomeContent> {
                                     borderRadius: const BorderRadius.vertical(
                                       top: Radius.circular(10.0),
                                     ),
-                                    child: product.image1 != null ||
+                                    child: (product.image1 != null ||
                                             product.image2 != null ||
-                                            product.image3 != null
+                                            product.image3 != null)
                                         ? PageView.builder(
                                             itemCount: [
                                               product.image1,
@@ -157,16 +173,9 @@ class _HomeContentState extends State<HomeContent> {
                                                   .cast<String>()
                                                   .toList();
 
-                                              if (imageIndex >= images.length) {
-                                                return const Center(
-                                                  child:
-                                                      Text("Geçersiz resim!"),
-                                                );
-                                              }
-
                                               return Image.memory(
                                                 base64Decode(
-                                                    images[imageIndex]),
+                                                    images[imageIndex]!),
                                                 fit: BoxFit.cover,
                                                 width: double.infinity,
                                                 height: double.infinity,
@@ -185,41 +194,56 @@ class _HomeContentState extends State<HomeContent> {
                                           ),
                                   ),
                                 ),
-                                Expanded(
-                                  flex: 1,
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceAround,
-                                      children: [
-                                        Text(
-                                          product.name,
-                                          style: const TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 16.0,
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Expanded(
+                                            child: Text(
+                                              product.name,
+                                              style: const TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 16.0,
+                                              ),
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
                                           ),
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                        Text(
-                                          '${product.price.toStringAsFixed(2)} ₺',
-                                          style: const TextStyle(
-                                            color: Colors.green,
-                                            fontSize: 14.0,
+                                          IconButton(
+                                            icon: Icon(
+                                              isFavorite
+                                                  ? Icons.favorite
+                                                  : Icons.favorite_border,
+                                              color: isFavorite
+                                                  ? Colors.red
+                                                  : Colors.grey,
+                                            ),
+                                            onPressed: () =>
+                                                _toggleFavorite(product.id),
                                           ),
+                                        ],
+                                      ),
+                                      Text(
+                                        '₺${product.price.toStringAsFixed(2)}',
+                                        style: const TextStyle(
+                                          color: Colors.green,
+                                          fontSize: 14.0,
                                         ),
-                                        Text(
-                                          '${product.weightOrAmount} ${product.unitType}',
-                                          style: const TextStyle(
-                                            fontSize: 12.0,
-                                            color: Colors.grey,
-                                          ),
+                                      ),
+                                      Text(
+                                        '${product.weightOrAmount} ${product.unitType}',
+                                        style: const TextStyle(
+                                          fontSize: 12.0,
+                                          color: Colors.grey,
                                         ),
-                                      ],
-                                    ),
+                                      ),
+                                    ],
                                   ),
                                 ),
                               ],
@@ -228,7 +252,7 @@ class _HomeContentState extends State<HomeContent> {
                         );
                       },
                     ),
-        ),
+        )
       ],
     );
   }

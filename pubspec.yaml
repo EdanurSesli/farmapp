@@ -11,6 +11,7 @@ dependencies:
   flutter:
     sdk: flutter
   provider: ^6.0.5
+  url_launcher: ^6.1.8
   
   cupertino_icons: ^1.0.8
   http: ^1.2.2
@@ -19,6 +20,7 @@ dependencies:
   firebase_core: ^3.8.1
   firebase_auth: ^5.3.4
   google_sign_in: ^6.2.2
+  font_awesome_flutter: ^10.4.0
 
 dev_dependencies:
   flutter_test:
@@ -31,5 +33,9 @@ flutter:
 
   assets:
     - assets/images/logo.png
-    - assets/images/logoo.jpg
+    - assets/images/cemhoca.jpg
+    - assets/images/eda.jpg
+    - assets/images/ecem.jpg
+    - assets/images/baris.jpg
+    - assets/images/iremelif.jpg
     - assets/images/applogo.png

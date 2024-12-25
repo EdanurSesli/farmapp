@@ -65,7 +65,6 @@ class ProductService {
 
       if (response.statusCode == 200) {
         print('API Yanıtı: ${response.body}');
-
         final List<dynamic> data = json.decode(response.body);
         return data.map((product) => Product.fromJson(product)).toList();
       } else {
@@ -101,7 +100,6 @@ class ProductService {
   Future<bool> updateProduct(Product product, String token) async {
     final url = Uri.parse(
         'https://farmtwomarket.com/api/Product/UpdateProduct?id=${product.id}');
-
     final headers = {
       'Content-Type': 'application/json',
       'Authorization': 'Bearer $token',
@@ -139,7 +137,7 @@ class ProductService {
   }
 
   Future<List<Category>> getCategories() async {
-    const String apiUrl = 'https://example.com/api/GetCategory';
+    const String apiUrl = 'https://farmtwomarket.com/api/Product/GetCategory';
     try {
       final response = await http.get(Uri.parse(apiUrl));
       if (response.statusCode == 200) {
@@ -151,6 +149,92 @@ class ProductService {
     } catch (error) {
       print("Kategori API çağrısı sırasında hata oluştu: $error");
       rethrow;
+    }
+  }
+
+  // Favori eklemek için API çağrısı
+  Future<bool> addFavorite(int productId) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var token = prefs.getString('token');
+
+    if (token == null) {
+      throw Exception('Geçerli bir token bulunamadı.');
+    }
+
+    final url = Uri.parse(
+        'https://farmtwomarket.com/api/Favorite/add?productId=$productId');
+    final headers = {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer $token',
+    };
+
+    try {
+      final response = await http.post(url, headers: headers);
+
+      if (response.statusCode == 200) {
+        return true;
+      } else {
+        throw Exception('Favori eklenirken hata oluştu: ${response.body}');
+      }
+    } catch (error) {
+      throw Exception('Favori eklenirken hata oluştu: $error');
+    }
+  }
+
+  // Favori ürünleri listelemek için API çağrısı
+  Future<List<Product>> getFavorites() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var token = prefs.getString('token');
+
+    if (token == null) {
+      throw Exception('Geçerli bir token bulunamadı.');
+    }
+
+    final url = Uri.parse('https://farmtwomarket.com/api/Favorite/favorites');
+    final headers = {
+      'Authorization': 'Bearer $token',
+    };
+
+    try {
+      final response = await http.get(url, headers: headers);
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = json.decode(response.body);
+        return data.map((product) => Product.fromJson(product)).toList();
+      } else {
+        throw Exception('Favoriler alınırken hata oluştu: ${response.body}');
+      }
+    } catch (error) {
+      throw Exception('Favoriler alınırken hata oluştu: $error');
+    }
+  }
+
+  // Favoriden kaldırmak için API çağrısı
+  Future<bool> removeFavorite(int productId) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var token = prefs.getString('token');
+
+    if (token == null) {
+      throw Exception('Geçerli bir token bulunamadı.');
+    }
+
+    final url = Uri.parse(
+        'https://farmtwomarket.com/api/Favorite/remove?productId=$productId');
+    final headers = {
+      'Authorization': 'Bearer $token',
+    };
+
+    try {
+      final response = await http.delete(url, headers: headers);
+
+      if (response.statusCode == 200) {
+        return true;
+      } else {
+        throw Exception(
+            'Favoriden kaldırılırken hata oluştu: ${response.body}');
+      }
+    } catch (error) {
+      throw Exception('Favoriden kaldırılırken hata oluştu: $error');
     }
   }
 }

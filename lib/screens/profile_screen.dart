@@ -1,11 +1,11 @@
 import 'package:farmapp/screens/customer_service_screen.dart';
 import 'package:farmapp/screens/home_screen.dart';
+import 'package:farmapp/screens/meet_ourteam_page.dart';
 import 'package:farmapp/screens/product_list_page.dart';
 import 'package:farmapp/screens/settings_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:farmapp/screens/productadd_screen.dart';
-import 'package:farmapp/screens/seller_verification_screen.dart';
 import 'package:farmapp/screens/favorites_screen.dart';
 import 'package:farmapp/screens/categories_screen.dart';
 import 'package:farmapp/screens/cart_screen.dart';
@@ -129,17 +129,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
               },
             ),
             ListTile(
-              leading: const Icon(Icons.verified_user),
-              title: const Text('Satıcı Doğrulama (Belge Ekle)'),
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => const SellerVerificationScreen()),
-                );
-              },
-            ),
-            ListTile(
               leading: const Icon(Icons.shopping_bag_sharp),
               title: const Text('Ürünlerim'),
               onTap: () {
@@ -160,11 +149,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
               onTap: () {},
             ),
             ListTile(
-              leading: const Icon(Icons.comment),
-              title: const Text('Ürün ve Satıcı Yorumlarım'),
-              onTap: () {},
-            ),
-            ListTile(
               leading: const Icon(Icons.support_agent),
               title: const Text('Farm2Market Müşteri Hizmetleri'),
               onTap: () {
@@ -172,6 +156,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   context,
                   MaterialPageRoute(
                       builder: (context) => CustomerServiceScreen()),
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.group),
+              title: const Text('Bizi Tanıyın!'),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => MeetOurTeamPage()),
                 );
               },
             ),
