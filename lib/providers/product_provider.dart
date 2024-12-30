@@ -10,18 +10,15 @@ class ProductProvider with ChangeNotifier {
 
   final ProductService _productService = ProductService();
 
-  // Getters
   List<Product> get products => [..._products];
   List<Product> get farmerProducts => [..._farmerProducts];
   List<int> get favoriteProductIds => [..._favoriteProductIds];
   bool get isLoading => _isLoading;
 
-  // Favori kontrolü
   bool isFavorite(int productId) {
     return _favoriteProductIds.contains(productId);
   }
 
-  // Tüm ürünleri yükleme (fetchAllProducts metodu)
   Future<List<Product>> fetchAllProducts() async {
     _setLoading(true);
     try {
@@ -40,7 +37,6 @@ class ProductProvider with ChangeNotifier {
     }
   }
 
-  // Çiftçiye ait ürünleri yükleme
   Future<void> loadFarmerProducts(String token) async {
     _setLoading(true);
     try {
@@ -58,7 +54,6 @@ class ProductProvider with ChangeNotifier {
     }
   }
 
-  // Ürün ekleme
   Future<void> addProduct(Product product) async {
     _setLoading(true);
     try {
@@ -74,7 +69,6 @@ class ProductProvider with ChangeNotifier {
     }
   }
 
-  // Ürün silme
   Future<void> removeProduct(String token, int id) async {
     _setLoading(true);
     try {
@@ -91,7 +85,6 @@ class ProductProvider with ChangeNotifier {
     }
   }
 
-  // Ürün güncelleme
   Future<void> updateProduct(Product updatedProduct, String token) async {
     _setLoading(true);
     try {
@@ -108,7 +101,6 @@ class ProductProvider with ChangeNotifier {
     }
   }
 
-  // Favorileri yükleme
   Future<void> loadFavorites() async {
     try {
       final favorites = await _productService.getFavorites();
@@ -120,7 +112,6 @@ class ProductProvider with ChangeNotifier {
     }
   }
 
-  // Favori durumu değiştirme
   Future<void> toggleFavorite(int productId) async {
     try {
       if (isFavorite(productId)) {
@@ -140,7 +131,6 @@ class ProductProvider with ChangeNotifier {
     }
   }
 
-  // Yardımcı metodlar
   void _setLoading(bool value) {
     _isLoading = value;
     notifyListeners();

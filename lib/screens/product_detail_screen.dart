@@ -1,7 +1,9 @@
 import 'dart:convert';
+import 'package:farmapp/models/cart_item.dart';
 import 'package:farmapp/models/product_add.dart';
 import 'package:farmapp/providers/cart_provider.dart';
-import 'package:farmapp/screens/cart_screen.dart';
+import 'package:farmapp/screens/home_screen.dart';
+import 'package:farmapp/services/ProductService.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -45,11 +47,41 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
           _errorMessage = "Miktar stoktan fazla olamaz!";
         });
       }
+    } else {
+      setState(() {
+        _errorMessage = "Geçerli bir miktar giriniz!";
+      });
+    }
+  }
+
+  Future<void> _addToCart() async {
+    try {
+      // Use the product_service's addToCart method
+      await ProductService().addToCart(widget.product.id, _quantity);
+
+      // Başarı durumunda kullanıcıyı bilgilendir
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Ürün sepete başarıyla eklendi.")),
+      );
+
+      // Kullanıcıyı anasayfaya yönlendir
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const HomeScreen(),
+        ),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Sepete ekleme sırasında hata oluştu: $e')),
+      );
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final cartProvider = Provider.of<CartProvider>(context, listen: false);
+
     List<String?> productImages = [
       widget.product.image1,
       widget.product.image2,
@@ -75,6 +107,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Ürün görselleri
             SizedBox(
               height: 300,
               child: validImages.isNotEmpty
@@ -99,6 +132,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                       ),
                     ),
             ),
+            // Ürün bilgileri
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: Column(
@@ -142,6 +176,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                 ],
               ),
             ),
+            // Miktar ve sepet butonu
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: Column(
@@ -192,26 +227,12 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                         ),
                       ),
                       ElevatedButton(
-                        onPressed: () {
-                          final cartProvider =
-                              Provider.of<CartProvider>(context, listen: false);
-                          cartProvider.addToCart(
-                            CartItem(
-                              id: widget.product.id.toString(),
-                              name: widget.product.name,
-                              price: widget.product.price,
-                              quantity: _quantity,
-                            ),
-                          );
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const CartScreen(),
-                            ),
-                          );
-                        },
+                        onPressed: _quantity > 0 &&
+                                _quantity <= widget.product.weightOrAmount
+                            ? _addToCart
+                            : null,
                         child: const Text("Sepete Ekle"),
-                      ),
+                      )
                     ],
                   ),
                 ],

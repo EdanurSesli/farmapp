@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:farmapp/models/cart_item.dart';
 import 'package:farmapp/models/category.dart';
 import 'package:farmapp/models/product_add.dart';
 import 'package:http/http.dart' as http;
@@ -152,7 +153,6 @@ class ProductService {
     }
   }
 
-  // Favori eklemek için API çağrısı
   Future<bool> addFavorite(int productId) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var token = prefs.getString('token');
@@ -235,6 +235,94 @@ class ProductService {
       }
     } catch (error) {
       throw Exception('Favoriden kaldırılırken hata oluştu: $error');
+    }
+  }
+
+  Future<void> addToCart(int productId, int weightOrAmount) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var token = prefs.getString('token');
+
+    if (token == null) {
+      throw Exception('Geçerli bir token bulunamadı.');
+    }
+
+    final url = Uri.parse('https://farmtwomarket.com/api/Cart/AddToCart');
+    final headers = {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer $token',
+    };
+
+    final body = json.encode({
+      'prodcutId': productId,
+      'weightOrAmount': weightOrAmount,
+    });
+
+    try {
+      final response = await http.post(url, headers: headers, body: body);
+
+      if (response.statusCode == 200) {
+        print('Ürün başarıyla sepete eklendi.');
+      } else {
+        print('Hata: ${response.body}');
+        throw Exception('Sepete eklerken hata oluştu: ${response.body}');
+      }
+    } catch (error) {
+      print('Hata oluştu: $error');
+      throw Exception('Sepete eklerken hata oluştu: $error');
+    }
+  }
+
+  Future<List<CartItem>> getCartItems() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var token = prefs.getString('token');
+    final url = Uri.parse('https://farmtwomarket.com/api/Cart/GetCart');
+
+    try {
+      final response = await http.get(
+        url,
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        final List<dynamic> items = data['cartItems'];
+        return items.map((item) => CartItem.fromJson(item)).toList();
+      } else {
+        throw Exception('Sepet verileri alınamadı: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Hata: $e');
+    }
+  }
+
+  Future<bool> removeFromCart(int cartItemId) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var token = prefs.getString('token');
+
+    if (token == null) {
+      throw Exception('Geçerli bir token bulunamadı.');
+    }
+
+    final url = Uri.parse(
+        'https://farmtwomarket.com/api/Cart/RemoveCartItem/$cartItemId');
+    final headers = {
+      'Authorization': 'Bearer $token',
+    };
+
+    try {
+      final response = await http.delete(url, headers: headers);
+
+      if (response.statusCode == 200) {
+        return true;
+      } else {
+        throw Exception(
+            'Sepet öğesi kaldırılırken hata oluştu: ${response.body}');
+      }
+    } catch (error) {
+      throw Exception('Hata oluştu: $error');
     }
   }
 }
