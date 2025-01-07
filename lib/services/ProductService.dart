@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:farmapp/models/cart_item.dart';
 import 'package:farmapp/models/category.dart';
+import 'package:farmapp/models/market_farmer_order.dart';
 import 'package:farmapp/models/product_add.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -253,7 +254,7 @@ class ProductService {
     };
 
     final body = json.encode({
-      'prodcutId': productId,
+      'productId': productId,
       'weightOrAmount': weightOrAmount,
     });
 
@@ -272,9 +273,14 @@ class ProductService {
     }
   }
 
-  Future<List<CartItem>> getCartItems() async {
+  Future<Cart> getCartItems() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var token = prefs.getString('token');
+
+    if (token == null) {
+      throw Exception('Geçerli bir token bulunamadı.');
+    }
+
     final url = Uri.parse('https://farmtwomarket.com/api/Cart/GetCart');
 
     try {
@@ -288,8 +294,7 @@ class ProductService {
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-        final List<dynamic> items = data['cartItems'];
-        return items.map((item) => CartItem.fromJson(item)).toList();
+        return Cart.fromJson(data); // Tüm cevabı `Cart` nesnesine dönüştür
       } else {
         throw Exception('Sepet verileri alınamadı: ${response.statusCode}');
       }
@@ -298,31 +303,126 @@ class ProductService {
     }
   }
 
-  Future<bool> removeFromCart(int cartItemId) async {
+  Future<http.Response> removeCartItem(int cartItemId, String token) async {
+    try {
+      final response = await http.delete(
+        Uri.parse(
+            'https://farmtwomarket.com/api/Cart/RemoveCartItem/$cartItemId'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+      return response;
+    } catch (e) {
+      throw Exception("Sepet öğesi kaldırılırken bir hata oluştu: $e");
+    }
+  }
+
+  Future<String?> createCheckoutSession() async {
+    final url = Uri.parse(
+        "https://farmtwomarket.com/api/Payment/CreateCheckoutSession");
+
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    var token = prefs.getString('token');
+    final token = prefs.getString('token');
 
     if (token == null) {
-      throw Exception('Geçerli bir token bulunamadı.');
+      throw Exception("Token bulunamadı. Giriş yapmanız gerekiyor.");
     }
 
-    final url = Uri.parse(
-        'https://farmtwomarket.com/api/Cart/RemoveCartItem/$cartItemId');
-    final headers = {
-      'Authorization': 'Bearer $token',
-    };
+    final response = await http.post(
+      url,
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
 
-    try {
-      final response = await http.delete(url, headers: headers);
+    if (response.statusCode == 200) {
+      final responseData = jsonDecode(response.body);
+      return responseData['paymentUrl'];
+    } else {
+      throw Exception("Ödeme oturumu oluşturulamadı: ${response.body}");
+    }
+  }
 
-      if (response.statusCode == 200) {
-        return true;
-      } else {
-        throw Exception(
-            'Sepet öğesi kaldırılırken hata oluştu: ${response.body}');
-      }
-    } catch (error) {
-      throw Exception('Hata oluştu: $error');
+  Future<Map<String, dynamic>> createOrderFromCart(String token) async {
+    final url =
+        Uri.parse('https://farmtwomarket.com/api/Cart/CreateOrderFromCart');
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+    if (token == null) {
+      throw Exception("Token bulunamadı. Giriş yapmanız gerekiyor.");
+    }
+
+    final response = await http.post(
+      url,
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      // Başarılı yanıtı JSON'a dönüştür
+      return jsonDecode(response.body);
+    } else {
+      // Hata durumunda yanıt gövdesini at
+      throw Exception('Sipariş oluşturulamadı: ${response.body}');
+    }
+  }
+
+  Future<List<MarketReceiverOrder>> getPaidOrders() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+
+    if (token == null) {
+      throw Exception("Token bulunamadı. Giriş yapmanız gerekiyor.");
+    }
+
+    final response = await http.get(
+      Uri.parse('https://farmtwomarket.com/api/Cart/GetPaidOrders'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final List<dynamic> jsonList = json.decode(response.body);
+      return jsonList
+          .map((jsonItem) => MarketReceiverOrder.fromJson(jsonItem))
+          .toList();
+    } else {
+      throw Exception(
+          'Siparişler yüklenirken hata oluştu: ${response.statusCode}');
+    }
+  }
+
+  Future<List<FarmerOrder>> getSoldOrders() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+
+    if (token == null) {
+      throw Exception("Token bulunamadı. Giriş yapmanız gerekiyor.");
+    }
+
+    final response = await http.get(
+      Uri.parse('https://farmtwomarket.com/api/Cart/GetSoldOrders'),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': 'application/json',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final List<dynamic> jsonList = json.decode(response.body);
+      return jsonList
+          .map((jsonItem) => FarmerOrder.fromJson(jsonItem))
+          .toList();
+    } else {
+      throw Exception(
+          'Siparişler yüklenirken hata oluştu: ${response.statusCode}');
     }
   }
 }

@@ -92,6 +92,8 @@ class _LoginScreenState extends State<LoginScreen> {
           await prefs.setString('token', responseData['data']['token']);
           await prefs.setString('userName', responseData['data']['userName']);
           await prefs.setString('email', responseData['data']['email']);
+          await prefs.setString('userRole', responseData['data']['userRole']);
+          print('UserRole kaydedildi: ${responseData['data']['userRole']}');
 
           bool isEmailConfirmed = responseData['data']['emailConfirmed'];
           int? confirmationNumber = responseData['data']['confirmationNumber'];

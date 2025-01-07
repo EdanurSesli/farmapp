@@ -49,7 +49,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
   Future<void> _toggleFavorite(Product product) async {
     try {
       await context.read<ProductProvider>().toggleFavorite(product.id);
-      _loadFavorites(); // Favori durumunu güncelle
+      _loadFavorites();
     } catch (e) {
       print("Error toggling favorite: $e");
     }
@@ -59,7 +59,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
   Widget build(BuildContext context) {
     SystemChrome.setSystemUIOverlayStyle(
       const SystemUiOverlayStyle(
-        statusBarColor: Color.fromRGBO(133, 8, 62, 1),
+        statusBarColor: Color.fromARGB(255, 114, 154, 104),
         statusBarIconBrightness: Brightness.light,
       ),
     );
@@ -71,9 +71,9 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
               fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white),
         ),
         centerTitle: true,
-        backgroundColor: const Color.fromRGBO(133, 8, 62, 1),
+        backgroundColor: const Color.fromARGB(255, 114, 154, 104),
         elevation: 0,
-        automaticallyImplyLeading: false, // Geri tuşu kaldırıldı
+        automaticallyImplyLeading: false,
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
@@ -85,14 +85,13 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                   ),
                 )
               : Padding(
-                  padding: const EdgeInsets.only(
-                      bottom: 16.0), // Alt overflow için padding eklendi
+                  padding: const EdgeInsets.only(bottom: 16.0),
                   child: GridView.builder(
                     padding: const EdgeInsets.all(10.0),
                     gridDelegate:
                         const SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 2,
-                      childAspectRatio: 0.75, // Kart boyutunu ayarladık
+                      childAspectRatio: 0.75,
                       crossAxisSpacing: 10,
                       mainAxisSpacing: 10,
                     ),

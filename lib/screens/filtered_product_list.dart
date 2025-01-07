@@ -8,11 +8,11 @@ import 'package:farmapp/screens/product_detail_screen.dart';
 
 class FilteredProductListScreen extends StatelessWidget {
   final int categoryId;
-  final String categoryName; // Kategori adını ekledik
+  final String categoryName;
 
   const FilteredProductListScreen({
     required this.categoryId,
-    required this.categoryName, // Kategori adını parametre olarak aldık
+    required this.categoryName,
     super.key,
   });
 
@@ -61,7 +61,7 @@ class FilteredProductListScreen extends StatelessWidget {
           '$categoryName Kategorisinde Ürünler',
           style: const TextStyle(color: Colors.white),
         ),
-        backgroundColor: const Color.fromRGBO(133, 8, 62, 1),
+        backgroundColor: const Color.fromARGB(255, 114, 154, 104),
         iconTheme: const IconThemeData(
           color: Colors.white,
         ),

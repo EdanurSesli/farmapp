@@ -56,15 +56,12 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
 
   Future<void> _addToCart() async {
     try {
-      // Use the product_service's addToCart method
       await ProductService().addToCart(widget.product.id, _quantity);
 
-      // Başarı durumunda kullanıcıyı bilgilendir
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Ürün sepete başarıyla eklendi.")),
       );
 
-      // Kullanıcıyı anasayfaya yönlendir
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
@@ -99,7 +96,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
           "Ürün Detayı",
           style: TextStyle(color: Colors.white),
         ),
-        backgroundColor: const Color.fromRGBO(133, 8, 62, 1),
+        backgroundColor: const Color.fromARGB(255, 114, 154, 104),
         elevation: 0,
         iconTheme: const IconThemeData(color: Colors.white),
       ),
@@ -107,7 +104,6 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Ürün görselleri
             SizedBox(
               height: 300,
               child: validImages.isNotEmpty
@@ -132,7 +128,6 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                       ),
                     ),
             ),
-            // Ürün bilgileri
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: Column(
@@ -176,7 +171,6 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                 ],
               ),
             ),
-            // Miktar ve sepet butonu
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: Column(

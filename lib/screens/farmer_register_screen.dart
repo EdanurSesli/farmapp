@@ -58,7 +58,6 @@ class _FarmerRegisterScreenState extends State<FarmerRegisterScreen> {
                 decoration: _inputDecoration('Adınız'),
               ),
               const SizedBox(height: 10),
-
               const Text('Soyadınız',
                   style: TextStyle(fontWeight: FontWeight.bold)),
               TextField(
@@ -66,7 +65,6 @@ class _FarmerRegisterScreenState extends State<FarmerRegisterScreen> {
                 decoration: _inputDecoration('Soyadınız'),
               ),
               const SizedBox(height: 10),
-
               const Text('Kullanıcı Adı',
                   style: TextStyle(fontWeight: FontWeight.bold)),
               TextField(
@@ -74,7 +72,6 @@ class _FarmerRegisterScreenState extends State<FarmerRegisterScreen> {
                 decoration: _inputDecoration('Kullanıcı Adı'),
               ),
               const SizedBox(height: 10),
-
               const Text('Email',
                   style: TextStyle(fontWeight: FontWeight.bold)),
               TextField(
@@ -82,7 +79,6 @@ class _FarmerRegisterScreenState extends State<FarmerRegisterScreen> {
                 decoration: _inputDecoration('Email'),
               ),
               const SizedBox(height: 10),
-
               const Text('Adres',
                   style: TextStyle(fontWeight: FontWeight.bold)),
               TextField(
@@ -90,7 +86,6 @@ class _FarmerRegisterScreenState extends State<FarmerRegisterScreen> {
                 decoration: _inputDecoration('Adres'),
               ),
               const SizedBox(height: 10),
-
               const Text('Şifre',
                   style: TextStyle(fontWeight: FontWeight.bold)),
               TextField(
@@ -99,7 +94,6 @@ class _FarmerRegisterScreenState extends State<FarmerRegisterScreen> {
                 decoration: _inputDecoration('Şifre'),
               ),
               const SizedBox(height: 10),
-
               const Text('Şifre Doğrulama',
                   style: TextStyle(fontWeight: FontWeight.bold)),
               TextField(
@@ -108,7 +102,6 @@ class _FarmerRegisterScreenState extends State<FarmerRegisterScreen> {
                 decoration: _inputDecoration('Şifre Doğrulama'),
               ),
               const SizedBox(height: 20),
-
               ElevatedButton(
                 onPressed: () async {
                   String firstName = firstNameController.text;
@@ -154,8 +147,6 @@ class _FarmerRegisterScreenState extends State<FarmerRegisterScreen> {
                 ),
               ),
               const SizedBox(height: 10),
-
-              // Google Register Button
               OutlinedButton(
                 onPressed: () {},
                 child: const Text('Google ile Kayıt Ol'),

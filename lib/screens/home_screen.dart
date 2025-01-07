@@ -47,7 +47,7 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: _selectedIndex == 0
           ? AppBar(
               automaticallyImplyLeading: false,
-              backgroundColor: const Color.fromRGBO(133, 8, 62, 1),
+              backgroundColor: const Color.fromARGB(255, 114, 154, 104),
               elevation: 0,
               centerTitle: true,
               title: Image.asset(

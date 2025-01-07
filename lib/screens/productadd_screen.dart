@@ -106,12 +106,21 @@ class _ProductAddScreenState extends State<ProductAddScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Ürün Ekle'),
+        backgroundColor: const Color.fromARGB(255, 114, 154, 104),
+        title: const Text(
+          'Ürün Ekle',
+          style: TextStyle(
+            color: Colors.white,
+          ),
+        ),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () {
             Navigator.pop(context);
           },
+        ),
+        iconTheme: const IconThemeData(
+          color: Colors.white,
         ),
       ),
       body: Padding(
@@ -345,13 +354,13 @@ class _ProductAddScreenState extends State<ProductAddScreen> {
                           price: double.tryParse(_productPrice.text) ?? 0.0,
                           image1: _base64Image!.isNotEmpty
                               ? _base64Image![0]
-                              : null, // İlk resim
+                              : null,
                           image2: _base64Image!.length > 1
                               ? _base64Image![1]
-                              : null, // İkinci resim
+                              : null,
                           image3: _base64Image!.length > 2
                               ? _base64Image![2]
-                              : null, // Üçüncü resim
+                              : null,
                           unitType: selectedUnitType ?? '',
                           isActive: true,
                         );

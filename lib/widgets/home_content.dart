@@ -122,7 +122,7 @@ class _HomeContentState extends State<HomeContent> {
                         crossAxisCount: 2,
                         crossAxisSpacing: 8.0,
                         mainAxisSpacing: 8.0,
-                        childAspectRatio: 0.8, // Çocuk oranını düzenledik
+                        childAspectRatio: 0.8,
                       ),
                       itemCount: _filteredProducts.length,
                       itemBuilder: (context, index) {

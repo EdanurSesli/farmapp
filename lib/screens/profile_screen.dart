@@ -1,8 +1,12 @@
+import 'package:farmapp/models/market_farmer_order.dart';
 import 'package:farmapp/screens/customer_service_screen.dart';
+import 'package:farmapp/screens/farmer_orders_page.dart';
 import 'package:farmapp/screens/home_screen.dart';
 import 'package:farmapp/screens/meet_ourteam_page.dart';
+import 'package:farmapp/screens/market_receiver_orders_page.dart';
 import 'package:farmapp/screens/product_list_page.dart';
 import 'package:farmapp/screens/settings_screen.dart';
+import 'package:farmapp/services/ProductService.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:farmapp/screens/productadd_screen.dart';
@@ -45,6 +49,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
+  Future<String?> getUserRole() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString('userRole'); // 'userRole' key ile rol alınır
+  }
+
   Future<void> _logout() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.clear();
@@ -61,15 +70,25 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Hesabım"),
+        backgroundColor: const Color.fromARGB(255, 114, 154, 104),
+        title: const Text(
+          "Hesabım",
+          style: TextStyle(color: Colors.white),
+        ),
         automaticallyImplyLeading: false,
         actions: [
           IconButton(
-            icon: const Icon(Icons.notifications),
+            icon: const Icon(
+              Icons.notifications,
+              color: Colors.white,
+            ),
             onPressed: () {},
           ),
           IconButton(
-            icon: const Icon(Icons.settings),
+            icon: const Icon(
+              Icons.settings,
+              color: Colors.white,
+            ),
             onPressed: () {
               Navigator.push(
                 context,
@@ -131,22 +150,49 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ListTile(
               leading: const Icon(Icons.shopping_bag_sharp),
               title: const Text('Ürünlerim'),
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => ProductListPage()),
-                );
+              onTap: () async {
+                String? userRole = await getUserRole();
+                if (userRole == 'Farmer') {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => ProductListPage()),
+                  );
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                        content: Text(
+                            'Bu sayfaya erişim izniniz yok. Çiftçiler kullanabilir.')),
+                  );
+                }
               },
             ),
             ListTile(
               leading: const Icon(Icons.shopping_cart),
-              title: const Text('Alışlarım'),
-              onTap: () {},
-            ),
-            ListTile(
-              leading: const Icon(Icons.local_shipping),
-              title: const Text('Satışlarım'),
-              onTap: () {},
+              title: const Text('Siparişlerim'),
+              onTap: () async {
+                String? userRole = await getUserRole();
+                if (userRole == 'MarketReceiver') {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => MarketReceiverOrdersPage(
+                          productService: ProductService()),
+                    ),
+                  );
+                } else if (userRole == 'Farmer') {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          FarmerOrdersPage(productService: ProductService()),
+                    ),
+                  );
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Rol tanımlı değil.')),
+                  );
+                }
+              },
             ),
             ListTile(
               leading: const Icon(Icons.support_agent),

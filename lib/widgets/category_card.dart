@@ -12,7 +12,7 @@ class CategoryCard extends StatelessWidget {
       child: Container(
         width: 120,
         decoration: BoxDecoration(
-          color: const Color.fromRGBO(133, 8, 62, 1),
+          color: const Color.fromARGB(255, 114, 154, 104),
           borderRadius: BorderRadius.circular(15),
         ),
         child: Center(

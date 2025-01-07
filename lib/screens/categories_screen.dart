@@ -46,7 +46,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
   Widget build(BuildContext context) {
     SystemChrome.setSystemUIOverlayStyle(
       const SystemUiOverlayStyle(
-        statusBarColor: Color.fromRGBO(133, 8, 62, 1),
+        statusBarColor: Color.fromARGB(255, 114, 154, 104),
         statusBarIconBrightness: Brightness.light,
       ),
     );
@@ -63,7 +63,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
           ),
         ),
         centerTitle: true,
-        backgroundColor: const Color.fromRGBO(133, 8, 62, 1),
+        backgroundColor: const Color.fromARGB(255, 114, 154, 104),
         elevation: 0,
         automaticallyImplyLeading: false,
       ),
@@ -107,7 +107,7 @@ class CategoryTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      color: const Color.fromRGBO(133, 8, 62, 1),
+      color: const Color.fromARGB(255, 114, 154, 104),
       elevation: 3,
       child: InkWell(
         onTap: () {

@@ -89,7 +89,7 @@ class _ProductListPageState extends State<ProductListPage> {
             color: Colors.white,
           ),
         ),
-        backgroundColor: const Color.fromRGBO(133, 8, 62, 1),
+        backgroundColor: const Color.fromARGB(255, 114, 154, 104),
         elevation: 0,
         automaticallyImplyLeading: true,
         iconTheme: const IconThemeData(color: Colors.white),

@@ -83,13 +83,20 @@ class MeetOurTeamPage extends StatelessWidget {
     ),
   ];
 
-  void _launchURL(String url) async {
-    final uri = Uri.parse(url);
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri, mode: LaunchMode.externalApplication);
-    } else {
-      debugPrint('Could not launch $url');
-      throw 'Could not launch $url';
+  void _launchURL(BuildContext context, String url) async {
+    try {
+      final uri = Uri.parse(url);
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Bağlantı açılamadı: $url')),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Bir hata oluştu: $e')),
+      );
     }
   }
 
@@ -101,7 +108,7 @@ class MeetOurTeamPage extends StatelessWidget {
           'Bizi Tanıyın',
           style: TextStyle(color: Colors.white),
         ),
-        backgroundColor: const Color.fromRGBO(133, 8, 62, 1),
+        backgroundColor: const Color.fromARGB(255, 114, 154, 104),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () {
@@ -160,7 +167,8 @@ class MeetOurTeamPage extends StatelessWidget {
                                   color: Colors.pink,
                                 ),
                                 onPressed: () {
-                                  _launchURL(profile.socialLinks["instagram"]!);
+                                  _launchURL(context,
+                                      profile.socialLinks["instagram"]!);
                                 },
                               ),
                             if (profile.socialLinks["linkedin"] != null)
@@ -170,7 +178,8 @@ class MeetOurTeamPage extends StatelessWidget {
                                   color: Colors.blue,
                                 ),
                                 onPressed: () {
-                                  _launchURL(profile.socialLinks["linkedin"]!);
+                                  _launchURL(context,
+                                      profile.socialLinks["linkedin"]!);
                                 },
                               ),
                             if (profile.socialLinks["github"] != null)
@@ -180,7 +189,8 @@ class MeetOurTeamPage extends StatelessWidget {
                                   color: Colors.black,
                                 ),
                                 onPressed: () {
-                                  _launchURL(profile.socialLinks["github"]!);
+                                  _launchURL(
+                                      context, profile.socialLinks["github"]!);
                                 },
                               ),
                           ],
