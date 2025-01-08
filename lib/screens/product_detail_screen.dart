@@ -5,6 +5,7 @@ import 'package:farmapp/providers/cart_provider.dart';
 import 'package:farmapp/screens/home_screen.dart';
 import 'package:farmapp/services/ProductService.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:provider/provider.dart';
 
 class ProductDetailScreen extends StatefulWidget {
@@ -20,11 +21,20 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
   int _quantity = 1;
   late double _totalPrice;
   String? _errorMessage;
+  String? _userRole;
 
   @override
   void initState() {
     super.initState();
+    _getUserRole();
     _calculateTotalPrice();
+  }
+
+  Future<void> _getUserRole() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _userRole = prefs.getString('userRole');
+    });
   }
 
   void _calculateTotalPrice() {
@@ -55,6 +65,13 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
   }
 
   Future<void> _addToCart() async {
+    if (_userRole == 'Farmer') {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Çiftçi ürün satın alamaz.")),
+      );
+      return;
+    }
+
     try {
       await ProductService().addToCart(widget.product.id, _quantity);
 

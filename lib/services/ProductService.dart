@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:farmapp/models/cart_item.dart';
 import 'package:farmapp/models/category.dart';
+import 'package:farmapp/models/checkout_session_response.dart';
 import 'package:farmapp/models/market_farmer_order.dart';
 import 'package:farmapp/models/product_add.dart';
 import 'package:http/http.dart' as http;
@@ -330,19 +331,24 @@ class ProductService {
       throw Exception("Token bulunamadı. Giriş yapmanız gerekiyor.");
     }
 
-    final response = await http.post(
-      url,
-      headers: {
-        'Authorization': 'Bearer $token',
-        'Content-Type': 'application/json',
-      },
-    );
+    try {
+      final response = await http.post(
+        url,
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
 
-    if (response.statusCode == 200) {
-      final responseData = jsonDecode(response.body);
-      return responseData['paymentUrl'];
-    } else {
-      throw Exception("Ödeme oturumu oluşturulamadı: ${response.body}");
+      if (response.statusCode == 200) {
+        final responseData = jsonDecode(response.body);
+        final checkoutSession = CheckoutSessionResponse.fromJson(responseData);
+        return checkoutSession.url;
+      } else {
+        throw Exception("Ödeme oturumu oluşturulamadı: ${response.body}");
+      }
+    } catch (e) {
+      throw Exception("Hata: $e");
     }
   }
 
@@ -364,10 +370,8 @@ class ProductService {
     );
 
     if (response.statusCode == 200) {
-      // Başarılı yanıtı JSON'a dönüştür
       return jsonDecode(response.body);
     } else {
-      // Hata durumunda yanıt gövdesini at
       throw Exception('Sipariş oluşturulamadı: ${response.body}');
     }
   }

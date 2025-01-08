@@ -8,15 +8,24 @@ class PaymentRedirectScreen extends StatelessWidget {
       : super(key: key);
 
   Future<void> _launchPaymentUrl(BuildContext context) async {
-    if (await canLaunchUrl(Uri.parse(paymentUrl))) {
-      await launchUrl(
-        Uri.parse(paymentUrl),
-        mode: LaunchMode.externalApplication,
-      );
-    } else {
+    try {
+      final uri = Uri.parse(paymentUrl);
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(
+          uri,
+          mode: LaunchMode.externalApplication,
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Ödeme bağlantısı açılamıyor."),
+          ),
+        );
+      }
+    } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Ödeme bağlantısı açılamıyor."),
+        SnackBar(
+          content: Text("Hata: $e"),
         ),
       );
     }
@@ -37,20 +46,31 @@ class PaymentRedirectScreen extends StatelessWidget {
             Navigator.pop(context);
           },
         ),
-        iconTheme: const IconThemeData(color: Colors.white),
       ),
-      body: Center(
-        child: ElevatedButton(
-          onPressed: () => _launchPaymentUrl(context),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: const Color.fromARGB(255, 114, 154, 104),
-            padding:
-                const EdgeInsets.symmetric(vertical: 16.0, horizontal: 32.0),
-          ),
-          child: const Text(
-            "Ödeme Sayfasına Git",
-            style: TextStyle(color: Colors.white, fontSize: 16),
-          ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Text(
+              "Ödeme işlemini tamamlamak için aşağıdaki butona tıklayın.",
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 16.0),
+            ),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () => _launchPaymentUrl(context),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color.fromARGB(255, 114, 154, 104),
+                padding: const EdgeInsets.symmetric(vertical: 16.0),
+                minimumSize: const Size(double.infinity, 50),
+              ),
+              child: const Text(
+                "Ödemeye Geç",
+                style: TextStyle(fontSize: 18.0, color: Colors.white),
+              ),
+            ),
+          ],
         ),
       ),
     );

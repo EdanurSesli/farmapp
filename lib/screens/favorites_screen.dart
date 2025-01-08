@@ -1,8 +1,10 @@
 import 'dart:convert';
+import 'package:farmapp/screens/home_screen.dart';
 import 'package:flutter/services.dart';
 import 'package:farmapp/screens/product_detail_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../models/product_add.dart';
 import '../providers/product_provider.dart';
 
@@ -20,7 +22,27 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
   @override
   void initState() {
     super.initState();
+    _checkUserRole();
     _loadFavorites();
+  }
+
+  Future<void> _checkUserRole() async {
+    final prefs = await SharedPreferences.getInstance();
+    final userRole = prefs.getString('userRole') ?? '';
+
+    if (userRole == 'Farmer') {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Favoriler sayfasına erişim izniniz yok."),
+          ),
+        );
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => HomeScreen()),
+        );
+      });
+    }
   }
 
   Future<void> _loadFavorites() async {
@@ -29,7 +51,6 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
     });
 
     try {
-      // Favorileri yükle
       await context.read<ProductProvider>().loadFavorites();
       final provider = context.read<ProductProvider>();
       setState(() {

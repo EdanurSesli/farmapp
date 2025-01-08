@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../providers/product_provider.dart';
 import 'package:farmapp/screens/product_detail_screen.dart';
 import 'package:farmapp/models/product_add.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class HomeContent extends StatefulWidget {
   const HomeContent({super.key});
@@ -17,18 +18,27 @@ class _HomeContentState extends State<HomeContent> {
   List<Product> _allProducts = [];
   List<Product> _filteredProducts = [];
   final TextEditingController _searchController = TextEditingController();
+  String userRole = '';
 
   @override
   void initState() {
     super.initState();
     loadProducts();
     _searchController.addListener(_filterProducts);
+    _loadUserRole(); // Kullanıcı rolünü yükle
   }
 
   @override
   void dispose() {
     _searchController.dispose();
     super.dispose();
+  }
+
+  Future<void> _loadUserRole() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      userRole = prefs.getString('userRole') ?? '';
+    });
   }
 
   Future<void> loadProducts() async {
@@ -215,18 +225,20 @@ class _HomeContentState extends State<HomeContent> {
                                               overflow: TextOverflow.ellipsis,
                                             ),
                                           ),
-                                          IconButton(
-                                            icon: Icon(
-                                              isFavorite
-                                                  ? Icons.favorite
-                                                  : Icons.favorite_border,
-                                              color: isFavorite
-                                                  ? Colors.red
-                                                  : Colors.grey,
+                                          if (userRole !=
+                                              'Farmer') // Favori butonunu yalnızca Farmer olmayanlar için göster
+                                            IconButton(
+                                              icon: Icon(
+                                                isFavorite
+                                                    ? Icons.favorite
+                                                    : Icons.favorite_border,
+                                                color: isFavorite
+                                                    ? Colors.red
+                                                    : Colors.grey,
+                                              ),
+                                              onPressed: () =>
+                                                  _toggleFavorite(product.id),
                                             ),
-                                            onPressed: () =>
-                                                _toggleFavorite(product.id),
-                                          ),
                                         ],
                                       ),
                                       Text(

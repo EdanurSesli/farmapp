@@ -1,41 +1,35 @@
-import 'package:farmapp/screens/payment_redirect_screen.dart';
+import 'package:farmapp/services/ProductService.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:intl/intl.dart'; // Tarih formatlama için
+import 'package:intl/intl.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:farmapp/screens/home_screen.dart'; // Import HomeScreen
 
 import '../models/order.dart';
 
 class OrderSummaryScreen extends StatelessWidget {
-  final CreateOrderResponse order; // Use the correct model
+  final CreateOrderResponse order;
 
   const OrderSummaryScreen({Key? key, required this.order}) : super(key: key);
 
-  Future<String?> createCheckoutSession() async {
-    final url = Uri.parse(
-        "https://farmtwomarket.com/api/Payment/CreateCheckoutSession");
+  Future<void> _launchPaymentUrl(BuildContext context, String url) async {
+    final uri = Uri.parse(url);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
 
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('token');
+      // Wait for 20 seconds before navigating to the home screen
+      await Future.delayed(const Duration(seconds: 20));
 
-    if (token == null) {
-      throw Exception("Token bulunamadı. Giriş yapmanız gerekiyor.");
-    }
-
-    final response = await http.post(
-      url,
-      headers: {
-        'Authorization': 'Bearer $token',
-        'Content-Type': 'application/json',
-      },
-    );
-
-    if (response.statusCode == 200) {
-      final responseData = jsonDecode(response.body);
-      return responseData['paymentUrl'];
+      // Navigate back to the home screen
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const HomeScreen()),
+      );
     } else {
-      throw Exception("Ödeme oturumu oluşturulamadı: ${response.body}");
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Ödeme bağlantısı açılamıyor."),
+        ),
+      );
     }
   }
 
@@ -48,22 +42,12 @@ class OrderSummaryScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text(
           "Sipariş Özeti",
-          style: TextStyle(
-            color: Colors.white,
-          ),
+          style: TextStyle(color: Colors.white),
         ),
         backgroundColor: const Color.fromARGB(255, 114, 154, 104),
         leading: IconButton(
-          icon: const Icon(
-            Icons.arrow_back,
-            color: Colors.white,
-          ),
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ),
-        iconTheme: const IconThemeData(
-          color: Colors.white,
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () => Navigator.pop(context),
         ),
       ),
       body: Padding(
@@ -88,7 +72,7 @@ class OrderSummaryScreen extends StatelessWidget {
               ),
               const SizedBox(height: 8.0),
               if (order.items.isNotEmpty)
-                ...order.items.map<Widget>((item) {
+                ...order.items.map((item) {
                   return Card(
                     margin: const EdgeInsets.symmetric(vertical: 8.0),
                     child: Padding(
@@ -115,16 +99,11 @@ class OrderSummaryScreen extends StatelessWidget {
               ElevatedButton(
                 onPressed: () async {
                   try {
-                    final paymentUrl = await createCheckoutSession();
+                    final paymentUrl =
+                        await ProductService().createCheckoutSession();
 
                     if (paymentUrl != null && paymentUrl.isNotEmpty) {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) =>
-                              PaymentRedirectScreen(paymentUrl: paymentUrl),
-                        ),
-                      );
+                      await _launchPaymentUrl(context, paymentUrl);
                     } else {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(

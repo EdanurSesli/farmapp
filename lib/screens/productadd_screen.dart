@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ProductAddScreen extends StatefulWidget {
   const ProductAddScreen({super.key});
@@ -27,6 +28,7 @@ class _ProductAddScreenState extends State<ProductAddScreen> {
   final ImagePicker _picker = ImagePicker();
   File? _selectedImage;
   List<String>? _base64Image = [];
+  String? userRole;
 
   final List<String> unitTypes = ['Kilogram', 'Adet', 'Litre', 'Diğer'];
   final List<String> qualityOptions = ['A (En iyi)', 'B', 'C'];
@@ -100,10 +102,31 @@ class _ProductAddScreenState extends State<ProductAddScreen> {
   void initState() {
     super.initState();
     _loadCategories();
+    _getUserRole();
+  }
+
+  Future<void> _getUserRole() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      userRole = prefs.getString('userRole');
+    });
   }
 
   @override
   Widget build(BuildContext context) {
+    if (userRole == "MarketReceiver") {
+      return Scaffold(
+        appBar: AppBar(
+          title: const Text("Erişim Reddedildi"),
+        ),
+        body: const Center(
+          child: Text(
+            "Bu sayfaya erişim izniniz yok.",
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+        ),
+      );
+    }
     return Scaffold(
       appBar: AppBar(
         backgroundColor: const Color.fromARGB(255, 114, 154, 104),
