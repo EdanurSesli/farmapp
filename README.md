@@ -1,16 +1,11 @@
-# farmapp
+# Farm2MarketApp
 
-A new Flutter project.
+Farm2Market is an application aimed at digitizing the marketing and logistics processes of agricultural products, strengthening the collaboration between farmers and markets.
 
-## Getting Started
+## Application Interfaces
 
-This project is a starting point for a Flutter application.
+![Aplication Interfaces](https://github.com/EdanurSesli/farmapp/blob/main/assets/images/farm2market.png)
 
-A few resources to get you started if this is your first Flutter project:
+![Aplication Interfaces](https://github.com/EdanurSesli/farmapp/blob/main/assets/images/screens.png)
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+![Aplication Interfaces](https://github.com/EdanurSesli/farmapp/blob/main/assets/images/screens2.png)
