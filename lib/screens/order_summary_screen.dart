@@ -2,7 +2,7 @@ import 'package:farmapp/services/ProductService.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:farmapp/screens/home_screen.dart'; // Import HomeScreen
+import 'package:farmapp/screens/home_screen.dart';
 
 import '../models/order.dart';
 
@@ -16,10 +16,8 @@ class OrderSummaryScreen extends StatelessWidget {
     if (await canLaunchUrl(uri)) {
       await launchUrl(uri, mode: LaunchMode.externalApplication);
 
-      // Wait for 20 seconds before navigating to the home screen
       await Future.delayed(const Duration(seconds: 20));
 
-      // Navigate back to the home screen
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => const HomeScreen()),
